@@ -16,8 +16,13 @@ from allennlp.data.dataset_readers.penn_tree_bank import PennTreeBankConstituenc
 from allennlp.data.dataset_readers.reading_comprehension import SquadReader, TriviaQaReader
 from allennlp.data.dataset_readers.semantic_role_labeling import SrlReader
 from allennlp.data.dataset_readers.seq2seq import Seq2SeqDatasetReader
+<<<<<<< HEAD
 from allennlp.data.dataset_readers.sequence_tagging import SequenceTaggingDatasetReader
 from allennlp.data.dataset_readers.snli import SnliReader
 from allennlp.data.dataset_readers.wikitables.wikitables_dataset_reader import WikiTablesDatasetReader
 from allennlp.data.dataset_readers.ratecalculus.ratecalculus_dataset_reader import RateCalculusDatasetReader
 from allennlp.data.dataset_readers.wikitables.wikitables_preprocessed_dataset_reader import WikiTablesPreprocessedDatasetReader
+=======
+from allennlp.data.dataset_readers.coreference_resolution import ConllCorefReader, WinobiasReader
+from allennlp.data.dataset_readers.penn_tree_bank import PennTreeBankConstituencySpanDatasetReader
+>>>>>>> 760853c5f9a3b3d470bbdcc65526f2fac012514a

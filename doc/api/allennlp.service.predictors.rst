@@ -13,7 +13,11 @@ allennlp.service.predictors
 * :ref:`SentenceTaggerPredictor<sentence-tagger>`
 * :ref:`CorefPredictor<coreference-resolution>`
 * :ref:`ConstituencyParserPredictor<constituency-parser>`
+<<<<<<< HEAD
 * :ref:`WikiTablesParserPredictor<wikitables-parser>`
+=======
+* :ref:`SimpleSeq2SeqPredictor<simple-seq2seq>`
+>>>>>>> 760853c5f9a3b3d470bbdcc65526f2fac012514a
 
 .. _predictor:
 .. automodule:: allennlp.service.predictors.predictor
@@ -57,8 +61,13 @@ allennlp.service.predictors
    :undoc-members:
    :show-inheritance:
 
+<<<<<<< HEAD
 .. _wikitables-parser:
 .. automodule:: allennlp.service.predictors.wikitables_parser
+=======
+.. _simple-seq2seq:
+.. automodule:: allennlp.service.predictors.simple_seq2seq
+>>>>>>> 760853c5f9a3b3d470bbdcc65526f2fac012514a
    :members:
    :undoc-members:
    :show-inheritance:

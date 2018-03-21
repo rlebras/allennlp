@@ -5,12 +5,12 @@ which to write the results.
 
 .. code-block:: bash
 
-   $ python -m allennlp.run train --help
-   usage: python -m allennlp.run train [-h] -s SERIALIZATION_DIR
-                                            [-o OVERRIDES]
-                                            [--include-package INCLUDE_PACKAGE]
-                                            [--file-friendly-logging]
-                                            param_path
+   $ allennlp train --help
+   usage: allennlp train [-h] -s SERIALIZATION_DIR
+                              [-o OVERRIDES]
+                              [--include-package INCLUDE_PACKAGE]
+                              [--file-friendly-logging]
+                              param_path
 
    Train the specified model on the specified dataset.
 
@@ -36,20 +36,19 @@ import argparse
 import json
 import logging
 import os
-import sys
 from copy import deepcopy
 
 from allennlp.commands.evaluate import evaluate
 from allennlp.commands.subcommand import Subcommand
 from allennlp.common.checks import ConfigurationError
-from allennlp.common import Params, TeeLogger, Tqdm
-from allennlp.common.util import prepare_environment, import_submodules
+from allennlp.common import Params
+from allennlp.common.util import prepare_environment, prepare_global_logging
 from allennlp.data import Vocabulary
 from allennlp.data.instance import Instance
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.iterators.data_iterator import DataIterator
 from allennlp.models.archival import archive_model, CONFIG_NAME
-from allennlp.models.model import Model
+from allennlp.models.model import Model, _DEFAULT_WEIGHTS
 from allennlp.training.trainer import Trainer
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -80,12 +79,6 @@ class Train(Subcommand):
                                default="",
                                help='a HOCON structure used to override the experiment configuration')
 
-        subparser.add_argument('--include-package',
-                               type=str,
-                               action='append',
-                               default=[],
-                               help='additional packages to include')
-
         subparser.add_argument('--file-friendly-logging',
                                action='store_true',
                                default=False,
@@ -99,24 +92,18 @@ def train_model_from_args(args: argparse.Namespace):
     """
     Just converts from an ``argparse.Namespace`` object to string paths.
     """
-    # Import any additional modules needed (to register custom classes)
-    for package_name in args.include_package:
-        import_submodules(package_name)
-
-    if not args.recover and os.path.exists(args.serialization_dir):
-        raise ConfigurationError(f"Serialization directory ({args.serialization_dir}) already exists.  "
-                                 f"Specify --recover to recover training from existing output.")
-    elif args.recover and not os.path.exists(args.serialization_dir):
-        raise ConfigurationError(f"--recover specified but serialization_dir ({args.serialization_dir}) does not "
-                                 f"exist.  There is nothing to recover from.")
-
-    train_model_from_file(args.param_path, args.serialization_dir, args.overrides, args.file_friendly_logging)
+    train_model_from_file(args.param_path,
+                          args.serialization_dir,
+                          args.overrides,
+                          args.file_friendly_logging,
+                          args.recover)
 
 
 def train_model_from_file(parameter_filename: str,
                           serialization_dir: str,
                           overrides: str = "",
-                          file_friendly_logging: bool = False) -> Model:
+                          file_friendly_logging: bool = False,
+                          recover: bool = False) -> Model:
     """
     A wrapper around :func:`train_model` which loads the params from a file.
 
@@ -132,10 +119,14 @@ def train_model_from_file(parameter_filename: str,
     file_friendly_logging : ``bool``, optional (default=False)
         If ``True``, we make our output more friendly to saved model files.  We just pass this
         along to :func:`train_model`.
+    recover : ``bool`, optional (default=False)
+        If ``True``, we will try to recover a training run from an existing serialization
+        directory.  This is only intended for use when something actually crashed during the middle
+        of a run.  For continuing training a model on new data, see the ``fine-tune`` command.
     """
     # Load the experiment config from a file and pass it to ``train_model``.
     params = Params.from_file(parameter_filename, overrides)
-    return train_model(params, serialization_dir, file_friendly_logging)
+    return train_model(params, serialization_dir, file_friendly_logging, recover)
 
 
 def datasets_from_params(params: Params) -> Dict[str, Iterable[Instance]]:
@@ -170,19 +161,30 @@ def datasets_from_params(params: Params) -> Dict[str, Iterable[Instance]]:
 
     return datasets
 
-def create_serialization_dir(params: Params, serialization_dir: str) -> None:
+def create_serialization_dir(params: Params, serialization_dir: str, recover: bool) -> None:
     """
     This function creates the serialization directory if it doesn't exist.  If it already exists,
     then it verifies that we're recovering from a training with an identical configuration.
 
     Parameters
     ----------
-    params: Params, required.
+    params: ``Params``
         A parameter object specifying an AllenNLP Experiment.
-    serialization_dir: str, required
+    serialization_dir: ``str``
         The directory in which to save results and logs.
+    recover: ``bool``
+        If ``True``, we will try to recover from an existing serialization directory, and crash if
+        the directory doesn't exist, or doesn't match the configuration we're given.
     """
     if os.path.exists(serialization_dir):
+        if serialization_dir == '/output':
+            # Special-casing the beaker output directory, which will already exist when training
+            # starts.
+            return
+        if not recover:
+            raise ConfigurationError(f"Serialization directory ({serialization_dir}) already exists.  "
+                                     f"Specify --recover to recover training from existing output.")
+
         logger.info(f"Recovering from prior training at {serialization_dir}.")
 
         recovered_config_file = os.path.join(serialization_dir, CONFIG_NAME)
@@ -192,8 +194,8 @@ def create_serialization_dir(params: Params, serialization_dir: str) -> None:
         else:
             loaded_params = Params.from_file(recovered_config_file)
 
-            # Check whether any of the training configuration differs from the configuration we are resuming.
-            # If so, warn the user that training may fail.
+            # Check whether any of the training configuration differs from the configuration we are
+            # resuming.  If so, warn the user that training may fail.
             fail = False
             flat_params = params.as_flat_dict()
             flat_loaded = loaded_params.as_flat_dict()
@@ -215,10 +217,16 @@ def create_serialization_dir(params: Params, serialization_dir: str) -> None:
                 raise ConfigurationError("Training configuration does not match the configuration we're "
                                          "recovering from.")
     else:
+        if recover:
+            raise ConfigurationError(f"--recover specified but serialization_dir ({serialization_dir}) "
+                                     "does not exist.  There is nothing to recover from.")
         os.makedirs(serialization_dir)
 
 
-def train_model(params: Params, serialization_dir: str, file_friendly_logging: bool = False) -> Model:
+def train_model(params: Params,
+                serialization_dir: str,
+                file_friendly_logging: bool = False,
+                recover: bool = False) -> Model:
     """
     Trains the model specified in the given :class:`Params` object, using the data and training
     parameters also specified in that object, and saves the results in ``serialization_dir``.
@@ -232,24 +240,15 @@ def train_model(params: Params, serialization_dir: str, file_friendly_logging: b
     file_friendly_logging : ``bool``, optional (default=False)
         If ``True``, we add newlines to tqdm output, even on an interactive terminal, and we slow
         down tqdm's output to only once every 10 seconds.
+    recover : ``bool`, optional (default=False)
+        If ``True``, we will try to recover a training run from an existing serialization
+        directory.  This is only intended for use when something actually crashed during the middle
+        of a run.  For continuing training a model on new data, see the ``fine-tune`` command.
     """
     prepare_environment(params)
 
-    create_serialization_dir(params, serialization_dir)
-
-    # TODO(mattg): pull this block out into a separate function (maybe just add this to
-    # `prepare_environment`?)
-    Tqdm.set_slower_interval(file_friendly_logging)
-    sys.stdout = TeeLogger(os.path.join(serialization_dir, "stdout.log"), # type: ignore
-                           sys.stdout,
-                           file_friendly_logging)
-    sys.stderr = TeeLogger(os.path.join(serialization_dir, "stderr.log"), # type: ignore
-                           sys.stderr,
-                           file_friendly_logging)
-    handler = logging.FileHandler(os.path.join(serialization_dir, "python_logging.log"))
-    handler.setLevel(logging.INFO)
-    handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s'))
-    logging.getLogger().addHandler(handler)
+    create_serialization_dir(params, serialization_dir, recover)
+    prepare_global_logging(serialization_dir, file_friendly_logging)
 
     serialization_params = deepcopy(params).as_dict(quiet=True)
     with open(os.path.join(serialization_dir, CONFIG_NAME), "w") as param_file:
@@ -287,7 +286,16 @@ def train_model(params: Params, serialization_dir: str, file_friendly_logging: b
 
     evaluate_on_test = params.pop_bool("evaluate_on_test", False)
     params.assert_empty('base train command')
-    metrics = trainer.train()
+
+    try:
+        metrics = trainer.train()
+    except KeyboardInterrupt:
+        # if we have completed an epoch, try to create a model archive.
+        if os.path.exists(os.path.join(serialization_dir, _DEFAULT_WEIGHTS)):
+            logging.info("Training interrupted by the user. Attempting to create "
+                         "a model archive using the current best epoch weights.")
+            archive_model(serialization_dir, files_to_archive=params.files_to_archive)
+        raise
 
     # Now tar up results
     archive_model(serialization_dir, files_to_archive=params.files_to_archive)

@@ -13,4 +13,8 @@ from .semantic_role_labeler import SemanticRoleLabelerPredictor
 from .coref import CorefPredictor
 from .sentence_tagger import SentenceTaggerPredictor
 from .constituency_parser import ConstituencyParserPredictor
+<<<<<<< HEAD
 from .wikitables_parser import WikiTablesParserPredictor
+=======
+from .simple_seq2seq import SimpleSeq2SeqPredictor
+>>>>>>> 760853c5f9a3b3d470bbdcc65526f2fac012514a
