@@ -1,0 +1,1 @@
+(SBARQ (ADVP (IN If) (S (VP (VP (PRP I)) (PP (VBP bring) (VP (VP (CD 10) (NNS dollars)) (VP (NN tomorrow))))))) (, ,) (MD can) (VP (PRP you)) (PP (VB buy) (VP (VP (PRP me)) (VP (NN lunch)))) (. ?))

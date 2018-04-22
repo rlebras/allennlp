@@ -1,0 +1,15 @@
+There are num2 more apples than bananas. How many bananas are there?
+( And ( Equals ( Value var5 unit0 ) ( Plus num2 ( Value var2 unit0 ) ) ) ( Equals ( Value var2 unit0 ) ? var7 ) )
+
+num0 gallons of gasoline cost num1 dollars.
+(And ( Equals ( Value var0 unit0 ) num0 ) ( Equals ( Value var0 unit1 ) num1 ))
+
+num2 integer is num6 another . What is the larger number ?
+( And ( Equals var1 ( Times num6 var0 ) ) ( Equals var1 ? var2 ) )
+
+Mary has num8 apples and num2 bananas . How many more apples than bananas does she have ?
+( And ( Equals ( Value var0 unit1 ) num8 ) ( Equals ( Value var1 unit1 ) num2 ) ( Equals ( Minus ( Value var0 unit1 ) ( Value var1 unit1 ) ) ? var2 ) )
+
+Sam has num3 ducks .
+( Equals ( Value var0 unit0 ) num3 )
+

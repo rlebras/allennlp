@@ -83,7 +83,7 @@ class Predict(Subcommand):
         subparser.add_argument('--silent', action='store_true', help='do not print output to stdout')
 
         cuda_device = subparser.add_mutually_exclusive_group(required=False)
-        cuda_device.add_argument('--cuda-device', type=int, default=-1, help='id of GPU to use (if any)')
+        cuda_device.add_argument('--cuda-device', type=int, default=0, help='id of GPU to use (if any)')
 
         subparser.add_argument('-o', '--overrides',
                                type=str,

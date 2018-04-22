@@ -458,6 +458,7 @@ class Trainer:
                                                        batch_num_total)
             else:
                 self._optimizer.step()
+                # pass
 
             # Update the description with the latest metrics
             metrics = self._get_metrics(train_loss, batches_this_epoch)
@@ -661,6 +662,7 @@ class Trainer:
         val_metrics: Dict[str, float] = {}
         epochs_trained = 0
         training_start_time = time.time()
+        print('num epochs', self._num_epochs)
         for epoch in range(epoch_counter, self._num_epochs):
             epoch_start_time = time.time()
             train_metrics = self._train_epoch(epoch)
@@ -845,7 +847,7 @@ class Trainer:
         # load parameters onto GPU then make a new GPU copy into the parameter
         # buffer. The GPU transfer happens implicitly in load_state_dict.
         model_state = torch.load(model_path, map_location=util.device_mapping(-1))
-        training_state = torch.load(training_state_path, map_location=util.device_mapping(-1))
+        training_state = torch.load(training_state_path, map_location='cuda:0')
         self._model.load_state_dict(model_state)
         self._optimizer.load_state_dict(training_state["optimizer"])
 

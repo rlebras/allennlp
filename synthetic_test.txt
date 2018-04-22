@@ -1,0 +1,500 @@
+Tom has num0 star fruit , num1 quince , num2 plantain , num3 blueberry , num4 lychee , num5 grape , num6 dragonfruit , num7 cherimoya , num8 chico fruit . How many grape does he have ?	num5
+Tom has num0 cloudberry , num1 banana , num2 lemon . How many lemon does he have ?	num2
+Tom has num0 elderberry , num1 juniper berry , num2 rambutan . How many rambutan does he have ?	num2
+Tom has num0 lemon , num1 ugli fruit , num2 elderberry , num3 chico fruit , num4 star fruit , num5 avocado , num6 huckleberry , num7 pomegranate . How many elderberry does he have ?	num2
+Tom has num0 avocado , num1 rambutan , num2 miracle fruit , num3 persimmon , num4 mandarine , num5 durian , num6 jujube . How many durian does he have ?	num5
+Tom has num0 pomelo , num1 soursop , num2 gooseberry , num3 pear , num4 raspberry . How many pear does he have ?	num3
+Tom has num0 raisin , num1 mango , num2 satsuma , num3 salal berry , num4 jackfruit , num5 boysenberry , num6 honeydew , num7 persimmon . How many mango does he have ?	num1
+Tom has num0 huckleberry , num1 honeydew . How many honeydew does he have ?	num1
+Tom has num0 fig , num1 honeyberry , num2 raisin , num3 pineapple . How many fig does he have ?	num0
+Tom has num0 purple mangosteen , num1 blackberry , num2 coconut , num3 soursop , num4 lemon . How many purple mangosteen does he have ?	num0
+Tom has num0 crab apples , num1 elderberry , num2 guava , num3 pomelo , num4 mango , num5 bilberry . How many pomelo does he have ?	num3
+Tom has num0 boysenberry , num1 cherry , num2 jackfruit . How many boysenberry does he have ?	num0
+Tom has num0 cherimoya , num1 ugli fruit , num2 papaya , num3 mulberry , num4 grape , num5 mango . How many mulberry does he have ?	num3
+Tom has num0 star fruit , num1 salmonberry , num2 bilberry , num3 quince , num4 honeydew , num5 persimmon . How many star fruit does he have ?	num0
+Tom has num0 mulberry , num1 salmonberry , num2 elderberry , num3 nectarine , num4 loquat , num5 fig , num6 papaya , num7 nance , num8 quince , num9 longan . How many longan does he have ?	num9
+Tom has num0 longan , num1 tamarind , num2 jackfruit . How many longan does he have ?	num0
+Tom has num0 pomelo , num1 kiwifruit , num2 jackfruit , num3 custard apple , num4 salak , num5 damson . How many pomelo does he have ?	num0
+Tom has num0 peach , num1 jabuticaba , num2 lemon , num3 salmonberry , num4 tamarillo , num5 tangerine . How many tangerine does he have ?	num5
+Tom has num0 cherimoya , num1 avocado , num2 tamarind , num3 cranberry , num4 clementine , num5 mulberry , num6 cantaloupe , num7 papaya . How many cantaloupe does he have ?	num6
+Tom has num0 cherry , num1 orange , num2 kiwifruit , num3 blueberry , num4 honeydew , num5 strawberry , num6 passionfruit . How many passionfruit does he have ?	num6
+Tom has num0 orange , num1 star fruit , num2 honeyberry , num3 jambul , num4 mandarine , num5 cantaloupe , num6 boysenberry , num7 watermelon , num8 feijoa , num9 honeydew . How many boysenberry does he have ?	num6
+Tom has num0 cherimoya , num1 custard apple , num2 blood orange , num3 huckleberry , num4 durian , num5 blackcurrant , num6 salak . How many durian does he have ?	num4
+Tom has num0 persimmon , num1 soursop , num2 lychee , num3 lemon . How many soursop does he have ?	num1
+Tom has num0 jabuticaba , num1 quince . How many quince does he have ?	num1
+Tom has num0 orange , num1 grapefruit , num2 raisin , num3 lychee , num4 pomelo , num5 honeyberry , num6 tamarillo . How many lychee does he have ?	num3
+Tom has num0 juniper berry , num1 currant , num2 orange , num3 yuzu . How many juniper berry does he have ?	num0
+Tom has num0 nance , num1 custard apple , num2 satsuma . How many nance does he have ?	num0
+Tom has num0 elderberry , num1 kumquat , num2 soursop . How many kumquat does he have ?	num1
+Tom has num0 plum , num1 passionfruit , num2 satsuma , num3 apple , num4 currant , num5 kiwifruit , num6 coconut , num7 guava , num8 purple mangosteen . How many satsuma does he have ?	num2
+Tom has num0 huckleberry , num1 avocado , num2 persimmon . How many persimmon does he have ?	num2
+Tom has num0 blackberry , num1 goji berry , num2 durian , num3 lychee , num4 watermelon , num5 damson , num6 apricot . How many blackberry does he have ?	num0
+Tom has num0 lychee , num1 salal berry . How many salal berry does he have ?	num1
+Tom has num0 clementine , num1 salal berry , num2 melon , num3 lime , num4 tamarillo , num5 feijoa , num6 star fruit , num7 mulberry . How many lime does he have ?	num3
+Tom has num0 pear , num1 huckleberry , num2 boysenberry , num3 cantaloupe , num4 miracle fruit , num5 mango , num6 persimmon , num7 redcurrant , num8 satsuma . How many boysenberry does he have ?	num2
+Tom has num0 mangosteen , num1 banana , num2 passionfruit , num3 satsuma . How many mangosteen does he have ?	num0
+Tom has num0 cranberry , num1 miracle fruit , num2 pear , num3 strawberry , num4 lime , num5 huckleberry , num6 yuzu , num7 tamarind , num8 salmonberry . How many strawberry does he have ?	num3
+Tom has num0 pineapple , num1 miracle fruit , num2 nance , num3 chico fruit , num4 quince , num5 pomelo . How many chico fruit does he have ?	num3
+Tom has num0 feijoa , num1 persimmon , num2 salal berry , num3 salmonberry , num4 plantain . How many salmonberry does he have ?	num3
+Tom has num0 olive , num1 plum , num2 kumquat , num3 tamarind , num4 currant , num5 orange . How many tamarind does he have ?	num3
+Tom has num0 marionberry , num1 pomelo , num2 chico fruit , num3 pineapple , num4 raspberry . How many chico fruit does he have ?	num2
+Tom has num0 tamarillo , num1 apricot , num2 grapefruit , num3 cucumber . How many tamarillo does he have ?	num0
+Tom has num0 banana , num1 lime , num2 watermelon , num3 date , num4 tangerine , num5 orange , num6 chico fruit . How many lime does he have ?	num1
+Tom has num0 lychee , num1 olive , num2 lemon , num3 cranberry , num4 ugli fruit . How many lemon does he have ?	num2
+Tom has num0 raspberry , num1 coconut , num2 quince , num3 blackcurrant , num4 passionfruit . How many quince does he have ?	num2
+Tom has num0 pear , num1 blackberry , num2 persimmon , num3 guava , num4 ugli fruit , num5 cucumber , num6 raspberry , num7 pineapple . How many cucumber does he have ?	num5
+Tom has num0 purple mangosteen , num1 marionberry , num2 jackfruit , num3 elderberry , num4 redcurrant , num5 date , num6 jujube . How many jujube does he have ?	num6
+Tom has num0 banana , num1 pomegranate , num2 elderberry , num3 rambutan , num4 jambul . How many jambul does he have ?	num4
+Tom has num0 mangosteen , num1 peach . How many peach does he have ?	num1
+Tom has num0 star fruit , num1 strawberry . How many strawberry does he have ?	num1
+Tom has num0 redcurrant , num1 pear , num2 yuzu , num3 damson , num4 olive , num5 coconut , num6 guava . How many coconut does he have ?	num5
+Tom has num0 honeydew , num1 currant , num2 redcurrant , num3 lemon , num4 grape , num5 mango , num6 watermelon , num7 tangerine , num8 salal berry . How many lemon does he have ?	num3
+Tom has num0 blackcurrant , num1 rambutan , num2 jujube , num3 cherry . How many jujube does he have ?	num2
+Tom has num0 melon , num1 cloudberry . How many melon does he have ?	num0
+Tom has num0 grapefruit , num1 blueberry , num2 kumquat . How many kumquat does he have ?	num2
+Tom has num0 lemon , num1 honeyberry , num2 crab apples , num3 grapefruit . How many grapefruit does he have ?	num3
+Tom has num0 blackberry , num1 mango , num2 satsuma , num3 chico fruit , num4 grapefruit , num5 banana , num6 cantaloupe , num7 lemon . How many chico fruit does he have ?	num3
+Tom has num0 rambutan , num1 kumquat , num2 raisin , num3 grape , num4 blood orange , num5 blackberry , num6 durian , num7 apricot , num8 blueberry . How many grape does he have ?	num3
+Tom has num0 purple mangosteen , num1 yuzu , num2 orange , num3 durian . How many orange does he have ?	num2
+Tom has num0 cherry , num1 marionberry , num2 blood orange , num3 jabuticaba , num4 rambutan , num5 avocado , num6 apricot , num7 raisin , num8 strawberry . How many marionberry does he have ?	num1
+Tom has num0 tamarillo , num1 dragonfruit . How many dragonfruit does he have ?	num1
+Tom has num0 star fruit , num1 lime , num2 nance , num3 salal berry , num4 nectarine , num5 watermelon . How many nance does he have ?	num2
+Tom has num0 raisin , num1 tamarillo , num2 passionfruit , num3 elderberry . How many raisin does he have ?	num0
+Tom has num0 kiwifruit , num1 mangosteen , num2 grape , num3 cranberry , num4 yuzu . How many yuzu does he have ?	num4
+Tom has num0 banana , num1 orange , num2 crab apples , num3 blackcurrant , num4 purple mangosteen , num5 dragonfruit , num6 juniper berry , num7 plantain , num8 tamarillo . How many plantain does he have ?	num7
+Tom has num0 orange , num1 boysenberry , num2 apple , num3 avocado , num4 plantain , num5 grape , num6 guava , num7 dragonfruit . How many apple does he have ?	num2
+Tom has num0 mango , num1 papaya . How many papaya does he have ?	num1
+Tom has num0 crab apples , num1 honeyberry . How many crab apples does he have ?	num0
+Tom has num0 pomelo , num1 tamarind , num2 apple . How many pomelo does he have ?	num0
+Tom has num0 custard apple , num1 jabuticaba . How many custard apple does he have ?	num0
+Tom has num0 pomegranate , num1 avocado . How many pomegranate does he have ?	num0
+Tom has num0 mangosteen , num1 chico fruit , num2 purple mangosteen , num3 cherimoya , num4 coconut , num5 blackberry , num6 star fruit , num7 feijoa , num8 date . How many feijoa does he have ?	num7
+Tom has num0 feijoa , num1 jujube , num2 plantain . How many plantain does he have ?	num2
+Tom has num0 redcurrant , num1 raspberry , num2 ugli fruit , num3 pomegranate , num4 clementine . How many raspberry does he have ?	num1
+Tom has num0 coconut , num1 redcurrant , num2 dragonfruit , num3 honeyberry , num4 goji berry , num5 blueberry , num6 cantaloupe , num7 loquat . How many goji berry does he have ?	num4
+Tom has num0 pineapple , num1 jabuticaba , num2 lychee , num3 coconut , num4 melon , num5 chico fruit , num6 orange , num7 cantaloupe , num8 jambul . How many orange does he have ?	num6
+Tom has num0 guava , num1 raisin , num2 dragonfruit , num3 gonzoberry , num4 peach , num5 purple mangosteen , num6 kumquat , num7 pomelo . How many kumquat does he have ?	num6
+Tom has num0 ugli fruit , num1 jackfruit , num2 boysenberry , num3 raisin , num4 blackberry , num5 huckleberry . How many jackfruit does he have ?	num1
+Tom has num0 melon , num1 juniper berry . How many juniper berry does he have ?	num1
+Tom has num0 lime , num1 damson , num2 nectarine , num3 grape , num4 coconut , num5 avocado , num6 raisin , num7 ugli fruit , num8 mulberry . How many nectarine does he have ?	num2
+Tom has num0 mango , num1 jambul , num2 gooseberry , num3 date . How many jambul does he have ?	num1
+Tom has num0 coconut , num1 lime , num2 rambutan , num3 persimmon , num4 pineapple , num5 redcurrant , num6 fig , num7 currant . How many coconut does he have ?	num0
+Tom has num0 feijoa , num1 blackberry , num2 quince , num3 banana , num4 kumquat , num5 lime , num6 jabuticaba , num7 soursop , num8 jackfruit , num9 avocado . How many kumquat does he have ?	num4
+Tom has num0 plum , num1 honeydew , num2 marionberry , num3 huckleberry , num4 apple , num5 cranberry , num6 papaya , num7 fig , num8 olive . How many honeydew does he have ?	num1
+Tom has num0 coconut , num1 passionfruit , num2 crab apples , num3 honeydew , num4 elderberry , num5 watermelon , num6 quince , num7 strawberry . How many watermelon does he have ?	num5
+Tom has num0 tamarillo , num1 blackberry , num2 cherry . How many tamarillo does he have ?	num0
+Tom has num0 salal berry , num1 lychee , num2 damson , num3 currant , num4 melon , num5 raspberry , num6 lime . How many currant does he have ?	num3
+Tom has num0 satsuma , num1 apple , num2 plantain . How many satsuma does he have ?	num0
+Tom has num0 melon , num1 soursop , num2 tamarillo , num3 pear , num4 grapefruit , num5 tangerine , num6 cherimoya , num7 juniper berry , num8 miracle fruit , num9 passionfruit . How many melon does he have ?	num0
+Tom has num0 coconut , num1 soursop , num2 clementine . How many coconut does he have ?	num0
+Tom has num0 grapefruit , num1 soursop , num2 grape , num3 boysenberry , num4 currant . How many soursop does he have ?	num1
+Tom has num0 loquat , num1 lemon , num2 banana . How many banana does he have ?	num2
+Tom has num0 satsuma , num1 dragonfruit , num2 cherry , num3 kumquat , num4 pear , num5 mango , num6 grapefruit , num7 pineapple , num8 strawberry , num9 lime . How many mango does he have ?	num5
+Tom has num0 pear , num1 blackcurrant , num2 gonzoberry , num3 salal berry . How many salal berry does he have ?	num3
+Tom has num0 tangerine , num1 banana , num2 rambutan . How many rambutan does he have ?	num2
+Tom has num0 honeydew , num1 rambutan , num2 raspberry , num3 blackcurrant . How many raspberry does he have ?	num2
+Tom has num0 yuzu , num1 longan , num2 plantain , num3 soursop , num4 honeydew , num5 pineapple , num6 pear , num7 blood orange , num8 nectarine . How many pear does he have ?	num6
+Tom has num0 pomegranate , num1 ugli fruit , num2 passionfruit , num3 lemon , num4 miracle fruit . How many ugli fruit does he have ?	num1
+Tom has num0 mulberry , num1 raisin , num2 banana , num3 papaya . How many banana does he have ?	num2
+Tom has num0 yuzu , num1 jabuticaba , num2 jackfruit , num3 grapefruit , num4 olive , num5 cherry , num6 rambutan , num7 nectarine , num8 mango . How many grapefruit does he have ?	num3
+Tom has num0 salmonberry , num1 lime , num2 currant , num3 melon , num4 cherimoya , num5 pineapple . How many cherimoya does he have ?	num4
+Tom has num0 kiwifruit , num1 strawberry . How many strawberry does he have ?	num1
+Tom has num0 jujube , num1 banana , num2 chico fruit , num3 miracle fruit , num4 rambutan , num5 tamarillo , num6 salal berry . How many salal berry does he have ?	num6
+Tom has num0 cucumber , num1 peach , num2 date , num3 jabuticaba , num4 boysenberry , num5 ugli fruit , num6 blackberry , num7 apricot . How many ugli fruit does he have ?	num5
+Tom has num0 redcurrant , num1 mangosteen , num2 avocado , num3 cherry , num4 lychee , num5 honeyberry , num6 guava , num7 papaya , num8 marionberry . How many redcurrant does he have ?	num0
+Tom has num0 pomelo , num1 watermelon , num2 cloudberry , num3 melon , num4 kiwifruit , num5 chico fruit , num6 grapefruit , num7 tangerine . How many grapefruit does he have ?	num6
+Tom has num0 blackberry , num1 blood orange , num2 nance , num3 miracle fruit , num4 tangerine , num5 coconut , num6 apple , num7 jabuticaba , num8 grape . How many jabuticaba does he have ?	num7
+Tom has num0 kumquat , num1 banana , num2 cantaloupe , num3 date , num4 elderberry , num5 grape , num6 ugli fruit , num7 yuzu . How many yuzu does he have ?	num7
+Tom has num0 kumquat , num1 huckleberry . How many kumquat does he have ?	num0
+Tom has num0 salal berry , num1 redcurrant , num2 apricot , num3 blueberry , num4 coconut , num5 cherimoya , num6 bilberry . How many cherimoya does he have ?	num5
+Tom has num0 banana , num1 cucumber , num2 apricot , num3 coconut , num4 yuzu , num5 watermelon , num6 melon , num7 cranberry , num8 juniper berry , num9 cantaloupe . How many apricot does he have ?	num2
+Tom has num0 apricot , num1 marionberry , num2 salak , num3 jujube , num4 mangosteen , num5 tamarind . How many mangosteen does he have ?	num4
+Tom has num0 purple mangosteen , num1 mango , num2 jambul , num3 pomelo , num4 crab apples , num5 lemon , num6 blackcurrant , num7 huckleberry , num8 bilberry , num9 cucumber . How many lemon does he have ?	num5
+Tom has num0 passionfruit , num1 apricot , num2 juniper berry , num3 durian , num4 crab apples , num5 satsuma , num6 miracle fruit . How many satsuma does he have ?	num5
+Tom has num0 watermelon , num1 soursop , num2 salmonberry , num3 pineapple . How many watermelon does he have ?	num0
+Tom has num0 tamarind , num1 salmonberry , num2 loquat , num3 pear , num4 custard apple , num5 blackberry , num6 quince , num7 yuzu , num8 cranberry , num9 lychee . How many tamarind does he have ?	num0
+Tom has num0 nectarine , num1 blueberry , num2 kiwifruit , num3 ugli fruit , num4 damson , num5 mango , num6 plantain , num7 longan , num8 miracle fruit , num9 blackcurrant . How many mango does he have ?	num5
+Tom has num0 cherry , num1 tamarind , num2 rambutan , num3 satsuma , num4 passionfruit . How many cherry does he have ?	num0
+Tom has num0 cucumber , num1 watermelon , num2 cranberry , num3 clementine , num4 jambul , num5 damson , num6 mango , num7 lime , num8 jabuticaba . How many jabuticaba does he have ?	num8
+Tom has num0 blood orange , num1 yuzu , num2 persimmon , num3 strawberry , num4 miracle fruit , num5 plantain , num6 cucumber , num7 quince , num8 olive , num9 nance . How many persimmon does he have ?	num2
+Tom has num0 kumquat , num1 salak . How many kumquat does he have ?	num0
+Tom has num0 papaya , num1 star fruit , num2 mulberry , num3 persimmon , num4 coconut , num5 lime , num6 blueberry . How many star fruit does he have ?	num1
+Tom has num0 feijoa , num1 goji berry , num2 jujube . How many jujube does he have ?	num2
+Tom has num0 peach , num1 tamarillo , num2 clementine , num3 lime , num4 plum , num5 avocado , num6 purple mangosteen , num7 kumquat , num8 persimmon , num9 blackcurrant . How many avocado does he have ?	num5
+Tom has num0 miracle fruit , num1 custard apple , num2 date , num3 salak , num4 peach , num5 boysenberry , num6 longan , num7 strawberry . How many date does he have ?	num2
+Tom has num0 huckleberry , num1 blueberry , num2 elderberry , num3 cloudberry , num4 nance , num5 raspberry , num6 miracle fruit , num7 tamarillo , num8 plum . How many miracle fruit does he have ?	num6
+Tom has num0 cranberry , num1 jambul , num2 feijoa , num3 mango , num4 raspberry , num5 nance , num6 lychee , num7 quince . How many mango does he have ?	num3
+Tom has num0 papaya , num1 quince , num2 ugli fruit , num3 jambul , num4 cucumber , num5 redcurrant , num6 cranberry . How many ugli fruit does he have ?	num2
+Tom has num0 cucumber , num1 chico fruit . How many cucumber does he have ?	num0
+Tom has num0 jackfruit , num1 soursop , num2 honeyberry , num3 marionberry , num4 raspberry , num5 melon , num6 cherimoya . How many honeyberry does he have ?	num2
+Tom has num0 watermelon , num1 lime , num2 mandarine , num3 cherimoya , num4 gooseberry , num5 goji berry , num6 rambutan , num7 lychee . How many gooseberry does he have ?	num4
+Tom has num0 mulberry , num1 watermelon , num2 plum , num3 blackcurrant , num4 mangosteen , num5 apricot , num6 gonzoberry , num7 cranberry , num8 lime , num9 guava . How many guava does he have ?	num9
+Tom has num0 quince , num1 clementine , num2 grape , num3 yuzu , num4 banana , num5 plum , num6 raisin . How many clementine does he have ?	num1
+Tom has num0 passionfruit , num1 orange . How many orange does he have ?	num1
+Tom has num0 plum , num1 damson . How many damson does he have ?	num1
+Tom has num0 cherry , num1 passionfruit , num2 redcurrant , num3 mandarine , num4 mangosteen . How many mandarine does he have ?	num3
+Tom has num0 currant , num1 loquat , num2 jabuticaba , num3 pineapple , num4 dragonfruit , num5 mango . How many currant does he have ?	num0
+Tom has num0 jambul , num1 papaya , num2 raspberry , num3 mandarine , num4 star fruit . How many mandarine does he have ?	num3
+Tom has num0 loquat , num1 feijoa , num2 lime , num3 pear , num4 purple mangosteen . How many lime does he have ?	num2
+Tom has num0 peach , num1 cucumber , num2 raisin , num3 banana , num4 blackcurrant , num5 pomelo . How many banana does he have ?	num3
+Tom has num0 yuzu , num1 honeyberry , num2 papaya . How many papaya does he have ?	num2
+Tom has num0 rambutan , num1 soursop , num2 guava . How many rambutan does he have ?	num0
+Tom has num0 avocado , num1 nectarine , num2 rambutan , num3 salak , num4 bilberry , num5 jujube , num6 dragonfruit , num7 strawberry . How many rambutan does he have ?	num2
+Tom has num0 pomegranate , num1 blueberry . How many blueberry does he have ?	num1
+Tom has num0 purple mangosteen , num1 apple , num2 custard apple , num3 durian , num4 blueberry , num5 strawberry , num6 orange , num7 plum , num8 persimmon , num9 blackberry . How many blueberry does he have ?	num4
+Tom has num0 strawberry , num1 clementine , num2 nectarine , num3 huckleberry , num4 damson , num5 goji berry , num6 feijoa . How many strawberry does he have ?	num0
+Tom has num0 honeydew , num1 satsuma , num2 orange , num3 tangerine , num4 pineapple , num5 cherry , num6 apricot , num7 yuzu , num8 strawberry . How many strawberry does he have ?	num8
+Tom has num0 watermelon , num1 tangerine , num2 nance , num3 blueberry , num4 dragonfruit . How many dragonfruit does he have ?	num4
+Tom has num0 damson , num1 bilberry , num2 salmonberry , num3 tamarillo . How many tamarillo does he have ?	num3
+Tom has num0 lime , num1 strawberry , num2 jackfruit , num3 purple mangosteen , num4 watermelon , num5 feijoa , num6 marionberry . How many purple mangosteen does he have ?	num3
+Tom has num0 purple mangosteen , num1 fig , num2 elderberry . How many purple mangosteen does he have ?	num0
+Tom has num0 nectarine , num1 marionberry , num2 banana , num3 mandarine , num4 jujube , num5 plum , num6 pineapple , num7 apple , num8 melon . How many nectarine does he have ?	num0
+Tom has num0 custard apple , num1 mulberry , num2 jabuticaba , num3 cherimoya , num4 nectarine , num5 longan , num6 lychee . How many mulberry does he have ?	num1
+Tom has num0 plantain , num1 guava , num2 apple , num3 star fruit . How many guava does he have ?	num1
+Tom has num0 papaya , num1 soursop , num2 yuzu , num3 grape , num4 orange . How many grape does he have ?	num3
+Tom has num0 grape , num1 pomegranate , num2 grapefruit , num3 guava , num4 nance , num5 kiwifruit , num6 durian , num7 soursop . How many soursop does he have ?	num7
+Tom has num0 lychee , num1 bilberry , num2 kiwifruit , num3 cantaloupe , num4 star fruit , num5 gooseberry , num6 jackfruit , num7 blueberry . How many gooseberry does he have ?	num5
+Tom has num0 passionfruit , num1 gooseberry , num2 blackberry , num3 mandarine , num4 mango , num5 avocado , num6 watermelon , num7 nance . How many gooseberry does he have ?	num1
+Tom has num0 gooseberry , num1 chico fruit , num2 goji berry , num3 mandarine . How many gooseberry does he have ?	num0
+Tom has num0 nance , num1 peach , num2 cucumber , num3 tangerine , num4 honeydew , num5 cherry . How many honeydew does he have ?	num4
+Tom has num0 watermelon , num1 juniper berry , num2 raisin , num3 chico fruit , num4 papaya , num5 yuzu , num6 cucumber , num7 soursop . How many chico fruit does he have ?	num3
+Tom has num0 orange , num1 custard apple , num2 salmonberry , num3 mulberry , num4 longan , num5 pear , num6 soursop . How many mulberry does he have ?	num3
+Tom has num0 pomelo , num1 apricot , num2 fig , num3 crab apples . How many apricot does he have ?	num1
+Tom has num0 banana , num1 jabuticaba , num2 chico fruit , num3 bilberry , num4 grapefruit , num5 clementine , num6 mulberry . How many bilberry does he have ?	num3
+Tom has num0 lime , num1 avocado , num2 chico fruit . How many chico fruit does he have ?	num2
+Tom has num0 watermelon , num1 blueberry , num2 tamarillo , num3 tamarind , num4 honeyberry , num5 pomelo , num6 bilberry , num7 rambutan , num8 olive , num9 coconut . How many rambutan does he have ?	num7
+Tom has num0 currant , num1 mangosteen , num2 watermelon , num3 nectarine , num4 cucumber , num5 custard apple , num6 pear , num7 redcurrant , num8 jackfruit . How many watermelon does he have ?	num2
+Tom has num0 pear , num1 lemon , num2 loquat , num3 banana , num4 pineapple , num5 kumquat , num6 watermelon , num7 honeyberry . How many honeyberry does he have ?	num7
+Tom has num0 loquat , num1 juniper berry , num2 raspberry , num3 cucumber , num4 grape , num5 plantain , num6 grapefruit , num7 mandarine , num8 tangerine , num9 pomelo . How many tangerine does he have ?	num8
+Tom has num0 damson , num1 papaya . How many papaya does he have ?	num1
+Tom has num0 apricot , num1 melon , num2 gooseberry , num3 pomelo , num4 chico fruit , num5 loquat , num6 marionberry . How many marionberry does he have ?	num6
+Tom has num0 cranberry , num1 honeyberry , num2 coconut , num3 orange . How many honeyberry does he have ?	num1
+Tom has num0 elderberry , num1 redcurrant . How many elderberry does he have ?	num0
+Tom has num0 boysenberry , num1 jujube , num2 blackcurrant , num3 tangerine , num4 purple mangosteen , num5 gooseberry , num6 honeyberry , num7 cranberry . How many tangerine does he have ?	num3
+Tom has num0 tangerine , num1 durian , num2 grape . How many tangerine does he have ?	num0
+Tom has num0 kiwifruit , num1 blueberry , num2 orange , num3 loquat , num4 bilberry , num5 fig , num6 mulberry , num7 cherimoya . How many mulberry does he have ?	num6
+Tom has num0 cherimoya , num1 quince , num2 guava , num3 persimmon . How many guava does he have ?	num2
+Tom has num0 pomegranate , num1 cloudberry , num2 huckleberry , num3 goji berry . How many pomegranate does he have ?	num0
+Tom has num0 jujube , num1 chico fruit , num2 grapefruit , num3 bilberry , num4 avocado , num5 clementine . How many avocado does he have ?	num4
+Tom has num0 satsuma , num1 pear , num2 salal berry , num3 cucumber , num4 watermelon , num5 jambul . How many cucumber does he have ?	num3
+Tom has num0 jambul , num1 tamarillo , num2 grapefruit , num3 grape , num4 soursop . How many tamarillo does he have ?	num1
+Tom has num0 longan , num1 mulberry , num2 mandarine . How many mulberry does he have ?	num1
+Tom has num0 dragonfruit , num1 coconut , num2 mandarine , num3 banana , num4 honeyberry . How many banana does he have ?	num3
+Tom has num0 cranberry , num1 nectarine , num2 blackcurrant . How many nectarine does he have ?	num1
+Tom has num0 pineapple , num1 lime , num2 juniper berry . How many pineapple does he have ?	num0
+Tom has num0 kiwifruit , num1 peach , num2 tangerine , num3 ugli fruit , num4 loquat , num5 redcurrant , num6 raisin , num7 honeydew , num8 watermelon . How many kiwifruit does he have ?	num0
+Tom has num0 pomegranate , num1 blackcurrant . How many pomegranate does he have ?	num0
+Tom has num0 salak , num1 raspberry , num2 jabuticaba . How many raspberry does he have ?	num1
+Tom has num0 mandarine , num1 redcurrant , num2 mulberry , num3 coconut , num4 tangerine , num5 persimmon , num6 raspberry , num7 apple , num8 banana , num9 cherimoya . How many banana does he have ?	num8
+Tom has num0 miracle fruit , num1 boysenberry . How many boysenberry does he have ?	num1
+Tom has num0 honeydew , num1 clementine , num2 huckleberry , num3 salak , num4 blackcurrant , num5 fig , num6 nectarine . How many fig does he have ?	num5
+Tom has num0 orange , num1 tamarillo , num2 boysenberry , num3 plum . How many tamarillo does he have ?	num1
+Tom has num0 ugli fruit , num1 jackfruit , num2 salal berry . How many ugli fruit does he have ?	num0
+Tom has num0 star fruit , num1 miracle fruit , num2 watermelon , num3 tamarind . How many tamarind does he have ?	num3
+Tom has num0 nectarine , num1 juniper berry , num2 plantain , num3 salak , num4 elderberry , num5 tamarillo , num6 clementine , num7 grapefruit , num8 strawberry , num9 longan . How many longan does he have ?	num9
+Tom has num0 cantaloupe , num1 longan , num2 plum , num3 purple mangosteen , num4 cranberry . How many cantaloupe does he have ?	num0
+Tom has num0 cherimoya , num1 pineapple , num2 apricot , num3 peach , num4 gooseberry , num5 pomelo , num6 chico fruit , num7 pear . How many pomelo does he have ?	num5
+Tom has num0 strawberry , num1 passionfruit , num2 pineapple , num3 boysenberry . How many strawberry does he have ?	num0
+Tom has num0 avocado , num1 kumquat , num2 guava , num3 marionberry , num4 bilberry , num5 satsuma , num6 pomegranate , num7 lychee , num8 custard apple , num9 miracle fruit . How many kumquat does he have ?	num1
+Tom has num0 melon , num1 peach , num2 persimmon , num3 mandarine . How many mandarine does he have ?	num3
+Tom has num0 raspberry , num1 mangosteen , num2 cantaloupe , num3 clementine . How many clementine does he have ?	num3
+Tom has num0 ugli fruit , num1 marionberry , num2 crab apples , num3 dragonfruit , num4 cherry , num5 apple , num6 pineapple , num7 raspberry , num8 star fruit . How many star fruit does he have ?	num8
+Tom has num0 juniper berry , num1 quince , num2 coconut , num3 avocado , num4 watermelon , num5 pear , num6 nance , num7 jabuticaba , num8 papaya . How many avocado does he have ?	num3
+Tom has num0 tangerine , num1 apricot , num2 jujube , num3 custard apple . How many apricot does he have ?	num1
+Tom has num0 jambul , num1 soursop . How many jambul does he have ?	num0
+Tom has num0 raspberry , num1 elderberry , num2 peach . How many elderberry does he have ?	num1
+Tom has num0 grape , num1 star fruit , num2 cantaloupe , num3 plantain , num4 jabuticaba , num5 rambutan . How many rambutan does he have ?	num5
+Tom has num0 cranberry , num1 guava , num2 longan . How many longan does he have ?	num2
+Tom has num0 bilberry , num1 jambul , num2 redcurrant , num3 tamarind , num4 goji berry . How many goji berry does he have ?	num4
+Tom has num0 date , num1 dragonfruit . How many date does he have ?	num0
+Tom has num0 raspberry , num1 plantain , num2 olive . How many plantain does he have ?	num1
+Tom has num0 kumquat , num1 ugli fruit , num2 jujube , num3 blackberry . How many blackberry does he have ?	num3
+Tom has num0 blueberry , num1 kiwifruit , num2 coconut , num3 mandarine , num4 custard apple , num5 plum . How many custard apple does he have ?	num4
+Tom has num0 salak , num1 star fruit , num2 rambutan , num3 persimmon . How many star fruit does he have ?	num1
+Tom has num0 huckleberry , num1 jujube , num2 olive , num3 jackfruit , num4 persimmon , num5 loquat , num6 salak , num7 lime , num8 blackcurrant . How many persimmon does he have ?	num4
+Tom has num0 raisin , num1 gonzoberry , num2 nance , num3 persimmon , num4 loquat , num5 damson , num6 salak , num7 avocado , num8 coconut , num9 jujube . How many raisin does he have ?	num0
+Tom has num0 satsuma , num1 yuzu , num2 crab apples , num3 apple , num4 gooseberry , num5 honeyberry , num6 fig , num7 grape , num8 blackcurrant . How many satsuma does he have ?	num0
+Tom has num0 melon , num1 raisin , num2 kumquat , num3 ugli fruit , num4 yuzu , num5 watermelon , num6 redcurrant . How many yuzu does he have ?	num4
+Tom has num0 lime , num1 date , num2 blackcurrant , num3 loquat , num4 nectarine , num5 longan , num6 yuzu , num7 mango . How many loquat does he have ?	num3
+Tom has num0 jackfruit , num1 tamarillo , num2 elderberry . How many tamarillo does he have ?	num1
+Tom has num0 plantain , num1 gonzoberry , num2 marionberry . How many marionberry does he have ?	num2
+Tom has num0 tamarind , num1 tamarillo , num2 olive , num3 mandarine , num4 salak , num5 rambutan , num6 marionberry , num7 currant . How many tamarillo does he have ?	num1
+Tom has num0 banana , num1 miracle fruit , num2 pomegranate . How many miracle fruit does he have ?	num1
+Tom has num0 quince , num1 mandarine , num2 olive , num3 nance , num4 jujube , num5 cloudberry , num6 pineapple , num7 marionberry . How many jujube does he have ?	num4
+Tom has num0 star fruit , num1 jabuticaba , num2 boysenberry , num3 passionfruit , num4 nance , num5 cherry , num6 jackfruit , num7 plum . How many star fruit does he have ?	num0
+Tom has num0 mangosteen , num1 salal berry , num2 chico fruit , num3 honeyberry , num4 mango , num5 fig , num6 honeydew , num7 cranberry , num8 marionberry , num9 boysenberry . How many marionberry does he have ?	num8
+Tom has num0 tamarind , num1 salmonberry , num2 boysenberry , num3 kumquat , num4 date , num5 cantaloupe , num6 pear , num7 ugli fruit , num8 blueberry . How many pear does he have ?	num6
+Tom has num0 cloudberry , num1 juniper berry , num2 lemon , num3 nance , num4 lime , num5 apple . How many nance does he have ?	num3
+Tom has num0 loquat , num1 grapefruit , num2 dragonfruit , num3 gooseberry , num4 feijoa , num5 banana , num6 tamarillo , num7 olive . How many banana does he have ?	num5
+Tom has num0 strawberry , num1 guava , num2 redcurrant , num3 cranberry , num4 yuzu , num5 jambul , num6 feijoa , num7 star fruit , num8 pomegranate . How many redcurrant does he have ?	num2
+Tom has num0 boysenberry , num1 gooseberry , num2 banana , num3 crab apples , num4 elderberry , num5 damson , num6 satsuma . How many elderberry does he have ?	num4
+Tom has num0 fig , num1 blackcurrant , num2 miracle fruit , num3 raisin , num4 custard apple , num5 pomegranate . How many miracle fruit does he have ?	num2
+Tom has num0 durian , num1 salak , num2 lychee , num3 strawberry , num4 quince , num5 gonzoberry , num6 miracle fruit , num7 salal berry , num8 currant . How many lychee does he have ?	num2
+Tom has num0 feijoa , num1 custard apple . How many custard apple does he have ?	num1
+Tom has num0 papaya , num1 yuzu , num2 cantaloupe , num3 mangosteen , num4 elderberry , num5 chico fruit . How many mangosteen does he have ?	num3
+Tom has num0 blood orange , num1 huckleberry , num2 lime , num3 pear , num4 apple , num5 kumquat , num6 juniper berry . How many juniper berry does he have ?	num6
+Tom has num0 nectarine , num1 gonzoberry , num2 yuzu , num3 clementine . How many clementine does he have ?	num3
+Tom has num0 cherimoya , num1 persimmon , num2 cherry , num3 orange , num4 jambul , num5 honeyberry , num6 plum , num7 cucumber , num8 lychee . How many plum does he have ?	num6
+Tom has num0 boysenberry , num1 peach . How many peach does he have ?	num1
+Tom has num0 miracle fruit , num1 bilberry , num2 purple mangosteen , num3 grape , num4 mangosteen . How many mangosteen does he have ?	num4
+Tom has num0 rambutan , num1 salak , num2 plum , num3 dragonfruit , num4 banana , num5 mango , num6 cherry . How many rambutan does he have ?	num0
+Tom has num0 plum , num1 olive , num2 kiwifruit , num3 watermelon , num4 elderberry , num5 lychee , num6 redcurrant , num7 peach . How many olive does he have ?	num1
+Tom has num0 blood orange , num1 plantain , num2 kiwifruit , num3 avocado , num4 cantaloupe , num5 goji berry , num6 honeyberry , num7 star fruit . How many cantaloupe does he have ?	num4
+Tom has num0 lemon , num1 grape , num2 blackcurrant , num3 soursop , num4 jackfruit , num5 salal berry . How many lemon does he have ?	num0
+Tom has num0 cantaloupe , num1 honeyberry , num2 salal berry , num3 feijoa , num4 raspberry . How many cantaloupe does he have ?	num0
+Tom has num0 raspberry , num1 blueberry . How many blueberry does he have ?	num1
+Tom has num0 blood orange , num1 miracle fruit , num2 apple , num3 orange , num4 banana , num5 loquat , num6 salak , num7 honeyberry , num8 gooseberry . How many salak does he have ?	num6
+Tom has num0 mulberry , num1 peach , num2 jambul . How many mulberry does he have ?	num0
+Tom has num0 kumquat , num1 soursop , num2 bilberry , num3 cherimoya , num4 nance , num5 satsuma , num6 salak . How many satsuma does he have ?	num5
+Tom has num0 pomelo , num1 watermelon , num2 chico fruit , num3 blood orange , num4 grape , num5 yuzu . How many blood orange does he have ?	num3
+Tom has num0 jabuticaba , num1 papaya , num2 orange , num3 elderberry , num4 persimmon , num5 satsuma , num6 guava . How many guava does he have ?	num6
+Tom has num0 mandarine , num1 tangerine , num2 chico fruit . How many mandarine does he have ?	num0
+Tom has num0 honeyberry , num1 lychee , num2 star fruit , num3 nectarine , num4 passionfruit , num5 goji berry , num6 plum , num7 custard apple , num8 kumquat , num9 olive . How many star fruit does he have ?	num2
+Tom has num0 plantain , num1 tamarillo , num2 satsuma , num3 juniper berry , num4 strawberry . How many strawberry does he have ?	num4
+Tom has num0 salmonberry , num1 grape , num2 tangerine , num3 kiwifruit , num4 huckleberry , num5 boysenberry . How many kiwifruit does he have ?	num3
+Tom has num0 custard apple , num1 cherry . How many cherry does he have ?	num1
+Tom has num0 mandarine , num1 jambul . How many jambul does he have ?	num1
+Tom has num0 melon , num1 tamarillo , num2 cloudberry , num3 huckleberry , num4 juniper berry , num5 pineapple , num6 gooseberry . How many gooseberry does he have ?	num6
+Tom has num0 loquat , num1 melon , num2 damson , num3 quince , num4 currant , num5 tamarind , num6 apricot . How many currant does he have ?	num4
+Tom has num0 cranberry , num1 redcurrant . How many cranberry does he have ?	num0
+Tom has num0 fig , num1 marionberry , num2 salak , num3 honeydew , num4 guava , num5 purple mangosteen , num6 raisin , num7 apricot , num8 mulberry , num9 cranberry . How many cranberry does he have ?	num9
+Tom has num0 olive , num1 satsuma , num2 persimmon , num3 date , num4 tamarind , num5 strawberry , num6 mandarine . How many strawberry does he have ?	num5
+Tom has num0 coconut , num1 crab apples , num2 cucumber , num3 mandarine , num4 banana , num5 dragonfruit , num6 soursop . How many dragonfruit does he have ?	num5
+Tom has num0 persimmon , num1 tamarind , num2 jambul , num3 salak , num4 plum , num5 passionfruit . How many jambul does he have ?	num2
+Tom has num0 cucumber , num1 date , num2 kumquat , num3 raisin . How many kumquat does he have ?	num2
+Tom has num0 watermelon , num1 cantaloupe , num2 mangosteen , num3 plum , num4 dragonfruit , num5 fig , num6 cloudberry , num7 bilberry , num8 pomegranate , num9 blood orange . How many dragonfruit does he have ?	num4
+Tom has num0 cantaloupe , num1 banana , num2 cherimoya , num3 honeydew . How many cherimoya does he have ?	num2
+Tom has num0 mango , num1 purple mangosteen . How many mango does he have ?	num0
+Tom has num0 lemon , num1 cherry , num2 jambul , num3 jabuticaba , num4 tangerine , num5 juniper berry , num6 salal berry . How many jabuticaba does he have ?	num3
+Tom has num0 honeydew , num1 kumquat , num2 guava . How many kumquat does he have ?	num1
+Tom has num0 peach , num1 satsuma , num2 blueberry , num3 date . How many satsuma does he have ?	num1
+Tom has num0 pear , num1 cantaloupe , num2 nance , num3 blood orange , num4 custard apple , num5 jujube , num6 miracle fruit , num7 pineapple . How many pineapple does he have ?	num7
+Tom has num0 custard apple , num1 strawberry , num2 guava , num3 quince , num4 persimmon , num5 raisin . How many persimmon does he have ?	num4
+Tom has num0 cherry , num1 nectarine , num2 jabuticaba , num3 tamarind , num4 persimmon , num5 mandarine , num6 gonzoberry . How many nectarine does he have ?	num1
+Tom has num0 damson , num1 custard apple , num2 mandarine , num3 ugli fruit , num4 soursop , num5 coconut , num6 strawberry , num7 durian , num8 lime , num9 plantain . How many coconut does he have ?	num5
+Tom has num0 apple , num1 avocado , num2 gooseberry , num3 jackfruit . How many gooseberry does he have ?	num2
+Tom has num0 gooseberry , num1 soursop , num2 honeyberry , num3 cherry , num4 purple mangosteen , num5 kiwifruit , num6 banana , num7 salal berry , num8 grapefruit , num9 ugli fruit . How many ugli fruit does he have ?	num9
+Tom has num0 raspberry , num1 mangosteen , num2 salmonberry , num3 lychee , num4 blueberry , num5 cherimoya , num6 huckleberry , num7 date , num8 mulberry . How many date does he have ?	num7
+Tom has num0 salal berry , num1 kiwifruit , num2 grape , num3 watermelon , num4 rambutan . How many watermelon does he have ?	num3
+Tom has num0 gooseberry , num1 melon , num2 bilberry , num3 miracle fruit , num4 jabuticaba , num5 blackberry . How many melon does he have ?	num1
+Tom has num0 cherry , num1 blueberry , num2 peach , num3 plantain , num4 marionberry , num5 longan , num6 strawberry , num7 jabuticaba , num8 nance . How many marionberry does he have ?	num4
+Tom has num0 goji berry , num1 satsuma , num2 apricot . How many apricot does he have ?	num2
+Tom has num0 melon , num1 strawberry , num2 satsuma , num3 blueberry . How many strawberry does he have ?	num1
+Tom has num0 avocado , num1 gooseberry , num2 boysenberry , num3 blackberry , num4 kiwifruit , num5 miracle fruit , num6 soursop . How many boysenberry does he have ?	num2
+Tom has num0 honeydew , num1 tamarind , num2 star fruit , num3 guava , num4 ugli fruit , num5 blackcurrant . How many blackcurrant does he have ?	num5
+Tom has num0 cranberry , num1 apple . How many cranberry does he have ?	num0
+Tom has num0 custard apple , num1 cherry , num2 jackfruit , num3 crab apples , num4 persimmon , num5 tamarind . How many persimmon does he have ?	num4
+Tom has num0 apricot , num1 passionfruit , num2 goji berry , num3 longan , num4 star fruit , num5 apple . How many passionfruit does he have ?	num1
+Tom has num0 pomelo , num1 jambul . How many pomelo does he have ?	num0
+Tom has num0 peach , num1 mandarine , num2 honeydew , num3 olive , num4 cucumber , num5 apricot , num6 mulberry , num7 marionberry , num8 pineapple . How many peach does he have ?	num0
+Tom has num0 pomelo , num1 elderberry , num2 damson , num3 pear , num4 blood orange , num5 plantain , num6 cranberry , num7 lychee , num8 blackcurrant , num9 soursop . How many plantain does he have ?	num5
+Tom has num0 grape , num1 ugli fruit . How many ugli fruit does he have ?	num1
+Tom has num0 pomegranate , num1 coconut , num2 cranberry , num3 currant , num4 kumquat , num5 salak , num6 grapefruit . How many kumquat does he have ?	num4
+Tom has num0 quince , num1 strawberry , num2 feijoa , num3 pomelo , num4 jackfruit , num5 apple , num6 custard apple , num7 grape , num8 blackberry , num9 avocado . How many quince does he have ?	num0
+Tom has num0 apricot , num1 passionfruit , num2 jackfruit . How many passionfruit does he have ?	num1
+Tom has num0 coconut , num1 peach , num2 cloudberry , num3 raspberry , num4 honeyberry , num5 tamarind , num6 durian . How many coconut does he have ?	num0
+Tom has num0 loquat , num1 longan . How many loquat does he have ?	num0
+Tom has num0 salak , num1 raspberry , num2 date , num3 olive , num4 bilberry , num5 miracle fruit , num6 honeyberry . How many miracle fruit does he have ?	num5
+Tom has num0 honeyberry , num1 coconut , num2 jujube , num3 gooseberry , num4 raspberry , num5 tamarillo , num6 pear , num7 blackberry , num8 star fruit , num9 kumquat . How many tamarillo does he have ?	num5
+Tom has num0 salal berry , num1 clementine , num2 lemon , num3 lychee , num4 passionfruit , num5 juniper berry , num6 tamarind , num7 boysenberry . How many boysenberry does he have ?	num7
+Tom has num0 durian , num1 dragonfruit , num2 pear , num3 mangosteen , num4 orange , num5 tamarillo , num6 avocado , num7 raisin , num8 clementine , num9 salal berry . How many dragonfruit does he have ?	num1
+Tom has num0 custard apple , num1 jambul , num2 date , num3 quince . How many quince does he have ?	num3
+Tom has num0 guava , num1 pomegranate , num2 salmonberry , num3 honeydew , num4 redcurrant , num5 plum , num6 dragonfruit , num7 boysenberry . How many guava does he have ?	num0
+Tom has num0 ugli fruit , num1 star fruit , num2 yuzu , num3 grapefruit , num4 pomegranate , num5 nectarine , num6 mango , num7 marionberry , num8 passionfruit , num9 jujube . How many ugli fruit does he have ?	num0
+Tom has num0 nance , num1 honeyberry , num2 grapefruit , num3 salak , num4 pineapple . How many salak does he have ?	num3
+Tom has num0 tangerine , num1 nectarine , num2 yuzu , num3 longan , num4 apricot , num5 pear , num6 raisin . How many apricot does he have ?	num4
+Tom has num0 plantain , num1 jabuticaba , num2 jackfruit , num3 peach . How many jackfruit does he have ?	num2
+Tom has num0 blood orange , num1 salal berry , num2 plantain , num3 yuzu . How many blood orange does he have ?	num0
+Tom has num0 satsuma , num1 apricot . How many satsuma does he have ?	num0
+Tom has num0 fig , num1 strawberry , num2 plum , num3 plantain , num4 apple , num5 lemon , num6 miracle fruit , num7 huckleberry . How many strawberry does he have ?	num1
+Tom has num0 blueberry , num1 grapefruit , num2 loquat , num3 purple mangosteen , num4 pear , num5 redcurrant , num6 plantain , num7 custard apple . How many loquat does he have ?	num2
+Tom has num0 custard apple , num1 gonzoberry , num2 soursop , num3 kumquat , num4 grapefruit , num5 orange , num6 apple , num7 blueberry , num8 huckleberry , num9 jackfruit . How many huckleberry does he have ?	num8
+Tom has num0 pineapple , num1 jackfruit , num2 guava . How many jackfruit does he have ?	num1
+Tom has num0 pomelo , num1 peach , num2 melon , num3 longan , num4 feijoa , num5 pear . How many feijoa does he have ?	num4
+Tom has num0 salak , num1 crab apples , num2 apple , num3 elderberry , num4 mango , num5 lemon , num6 pear . How many pear does he have ?	num6
+Tom has num0 honeydew , num1 grape , num2 jujube , num3 salmonberry , num4 jabuticaba , num5 melon . How many grape does he have ?	num1
+Tom has num0 fig , num1 ugli fruit , num2 mulberry . How many mulberry does he have ?	num2
+Tom has num0 nectarine , num1 damson . How many damson does he have ?	num1
+Tom has num0 guava , num1 cranberry , num2 apricot . How many cranberry does he have ?	num1
+Tom has num0 plantain , num1 cherimoya , num2 honeydew . How many plantain does he have ?	num0
+Tom has num0 avocado , num1 tamarillo , num2 bilberry , num3 feijoa , num4 quince , num5 jujube , num6 crab apples , num7 redcurrant , num8 salmonberry , num9 soursop . How many avocado does he have ?	num0
+Tom has num0 gonzoberry , num1 custard apple , num2 nectarine , num3 lychee , num4 damson . How many lychee does he have ?	num3
+Tom has num0 gonzoberry , num1 gooseberry , num2 nectarine , num3 durian , num4 tangerine , num5 salak , num6 salmonberry , num7 mulberry , num8 plum , num9 salal berry . How many gooseberry does he have ?	num1
+Tom has num0 gonzoberry , num1 redcurrant , num2 tamarillo , num3 nectarine , num4 lemon , num5 boysenberry , num6 star fruit , num7 honeyberry , num8 jackfruit . How many nectarine does he have ?	num3
+Tom has num0 kumquat , num1 salak , num2 quince , num3 melon , num4 papaya . How many kumquat does he have ?	num0
+Tom has num0 banana , num1 jambul , num2 loquat , num3 date , num4 mango , num5 juniper berry , num6 dragonfruit , num7 plantain , num8 salak , num9 mandarine . How many banana does he have ?	num0
+Tom has num0 cantaloupe , num1 jujube . How many cantaloupe does he have ?	num0
+Tom has num0 grape , num1 gooseberry , num2 star fruit . How many star fruit does he have ?	num2
+Tom has num0 raspberry , num1 yuzu , num2 chico fruit , num3 gonzoberry , num4 mangosteen , num5 bilberry , num6 grapefruit . How many chico fruit does he have ?	num2
+Tom has num0 pomelo , num1 crab apples , num2 melon . How many melon does he have ?	num2
+Tom has num0 passionfruit , num1 tamarind , num2 feijoa , num3 coconut , num4 nectarine . How many feijoa does he have ?	num2
+Tom has num0 soursop , num1 bilberry , num2 dragonfruit , num3 banana , num4 jujube . How many jujube does he have ?	num4
+Tom has num0 cantaloupe , num1 melon , num2 jambul , num3 papaya , num4 raspberry , num5 plantain . How many cantaloupe does he have ?	num0
+Tom has num0 raspberry , num1 goji berry . How many raspberry does he have ?	num0
+Tom has num0 quince , num1 coconut , num2 nectarine , num3 apple , num4 juniper berry , num5 papaya , num6 blueberry , num7 honeyberry , num8 elderberry . How many juniper berry does he have ?	num4
+Tom has num0 crab apples , num1 salmonberry , num2 mandarine , num3 grape , num4 apricot . How many grape does he have ?	num3
+Tom has num0 apple , num1 jabuticaba , num2 strawberry , num3 cherry , num4 crab apples , num5 grape . How many jabuticaba does he have ?	num1
+Tom has num0 blood orange , num1 dragonfruit , num2 raspberry , num3 avocado , num4 apple , num5 jambul , num6 yuzu , num7 crab apples , num8 blueberry , num9 purple mangosteen . How many yuzu does he have ?	num6
+Tom has num0 longan , num1 kiwifruit , num2 quince , num3 blood orange , num4 raisin , num5 crab apples , num6 durian , num7 cucumber , num8 papaya , num9 avocado . How many longan does he have ?	num0
+Tom has num0 pineapple , num1 guava , num2 blueberry , num3 olive , num4 boysenberry , num5 marionberry , num6 mulberry , num7 yuzu , num8 custard apple . How many blueberry does he have ?	num2
+Tom has num0 blackberry , num1 crab apples , num2 chico fruit , num3 ugli fruit , num4 soursop , num5 cherry , num6 blueberry . How many soursop does he have ?	num4
+Tom has num0 juniper berry , num1 dragonfruit , num2 cherimoya , num3 mandarine , num4 mangosteen , num5 cantaloupe , num6 goji berry , num7 pineapple , num8 kiwifruit . How many juniper berry does he have ?	num0
+Tom has num0 jabuticaba , num1 kiwifruit , num2 persimmon , num3 mulberry , num4 redcurrant , num5 apricot , num6 huckleberry . How many huckleberry does he have ?	num6
+Tom has num0 raspberry , num1 soursop . How many soursop does he have ?	num1
+Tom has num0 tangerine , num1 pineapple , num2 boysenberry , num3 plantain , num4 guava , num5 cloudberry . How many boysenberry does he have ?	num2
+Tom has num0 pomegranate , num1 blueberry , num2 grape , num3 dragonfruit , num4 lemon , num5 feijoa , num6 custard apple , num7 chico fruit , num8 bilberry . How many dragonfruit does he have ?	num3
+Tom has num0 lemon , num1 dragonfruit , num2 loquat , num3 papaya , num4 apple , num5 olive . How many dragonfruit does he have ?	num1
+Tom has num0 cucumber , num1 rambutan , num2 boysenberry , num3 kiwifruit , num4 honeyberry , num5 grape , num6 kumquat , num7 apple . How many boysenberry does he have ?	num2
+Tom has num0 guava , num1 orange . How many orange does he have ?	num1
+Tom has num0 guava , num1 mango , num2 tangerine , num3 kiwifruit , num4 fig , num5 salal berry , num6 chico fruit , num7 papaya , num8 dragonfruit . How many guava does he have ?	num0
+Tom has num0 cucumber , num1 grapefruit , num2 salak , num3 rambutan , num4 chico fruit , num5 banana , num6 gonzoberry , num7 clementine , num8 raisin . How many gonzoberry does he have ?	num6
+Tom has num0 plantain , num1 blood orange , num2 coconut , num3 passionfruit , num4 grapefruit , num5 loquat . How many passionfruit does he have ?	num3
+Tom has num0 fig , num1 watermelon , num2 persimmon , num3 cherry , num4 kiwifruit , num5 durian , num6 miracle fruit , num7 jackfruit , num8 lychee . How many watermelon does he have ?	num1
+Tom has num0 currant , num1 ugli fruit , num2 pear . How many ugli fruit does he have ?	num1
+Tom has num0 salmonberry , num1 orange , num2 tangerine , num3 pear . How many orange does he have ?	num1
+Tom has num0 yuzu , num1 banana , num2 passionfruit , num3 cloudberry . How many yuzu does he have ?	num0
+Tom has num0 coconut , num1 lime , num2 mangosteen , num3 pineapple . How many coconut does he have ?	num0
+Tom has num0 jackfruit , num1 papaya , num2 marionberry , num3 bilberry , num4 custard apple , num5 blackcurrant , num6 passionfruit . How many blackcurrant does he have ?	num5
+Tom has num0 guava , num1 goji berry , num2 juniper berry , num3 avocado . How many guava does he have ?	num0
+Tom has num0 nectarine , num1 mulberry . How many mulberry does he have ?	num1
+Tom has num0 huckleberry , num1 juniper berry , num2 apple , num3 elderberry , num4 coconut , num5 mulberry . How many elderberry does he have ?	num3
+Tom has num0 boysenberry , num1 coconut , num2 tamarillo , num3 chico fruit , num4 guava , num5 loquat , num6 cherimoya , num7 melon . How many melon does he have ?	num7
+Tom has num0 grape , num1 nectarine , num2 cherry , num3 miracle fruit , num4 cantaloupe . How many cantaloupe does he have ?	num4
+Tom has num0 kiwifruit , num1 mango , num2 cherry , num3 soursop , num4 chico fruit , num5 passionfruit . How many kiwifruit does he have ?	num0
+Tom has num0 cantaloupe , num1 pomelo , num2 mandarine , num3 huckleberry . How many pomelo does he have ?	num1
+Tom has num0 mulberry , num1 yuzu . How many yuzu does he have ?	num1
+Tom has num0 nectarine , num1 gooseberry , num2 redcurrant , num3 star fruit , num4 tangerine , num5 loquat , num6 salal berry , num7 lemon , num8 melon . How many tangerine does he have ?	num4
+Tom has num0 lemon , num1 mangosteen , num2 boysenberry , num3 strawberry , num4 avocado , num5 raisin , num6 passionfruit . How many raisin does he have ?	num5
+Tom has num0 currant , num1 kumquat , num2 bilberry , num3 honeydew , num4 salak , num5 plum , num6 date , num7 mulberry , num8 damson , num9 grape . How many bilberry does he have ?	num2
+Tom has num0 coconut , num1 cherry , num2 bilberry . How many cherry does he have ?	num1
+Tom has num0 cherry , num1 grape , num2 ugli fruit , num3 star fruit , num4 papaya . How many papaya does he have ?	num4
+Tom has num0 quince , num1 nance , num2 raisin . How many quince does he have ?	num0
+Tom has num0 blueberry , num1 cantaloupe , num2 longan , num3 grapefruit , num4 olive , num5 lychee . How many grapefruit does he have ?	num3
+Tom has num0 cranberry , num1 mandarine , num2 crab apples . How many mandarine does he have ?	num1
+Tom has num0 guava , num1 goji berry , num2 tamarind , num3 cucumber , num4 melon , num5 cherry , num6 mango , num7 blood orange , num8 star fruit . How many guava does he have ?	num0
+Tom has num0 nectarine , num1 cloudberry , num2 damson , num3 nance , num4 jabuticaba , num5 chico fruit , num6 mulberry . How many mulberry does he have ?	num6
+Tom has num0 guava , num1 crab apples , num2 purple mangosteen . How many crab apples does he have ?	num1
+Tom has num0 miracle fruit , num1 apricot , num2 papaya , num3 tamarillo , num4 cranberry , num5 grape , num6 strawberry , num7 longan , num8 juniper berry , num9 clementine . How many apricot does he have ?	num1
+Tom has num0 pomegranate , num1 grapefruit , num2 cucumber , num3 salak , num4 feijoa , num5 blackberry , num6 melon . How many salak does he have ?	num3
+Tom has num0 grape , num1 jambul , num2 raisin , num3 bilberry , num4 watermelon , num5 goji berry , num6 coconut , num7 cloudberry , num8 redcurrant , num9 feijoa . How many cloudberry does he have ?	num7
+Tom has num0 miracle fruit , num1 peach , num2 orange , num3 pomegranate , num4 jackfruit , num5 pear , num6 kiwifruit , num7 dragonfruit , num8 pineapple , num9 cranberry . How many kiwifruit does he have ?	num6
+Tom has num0 miracle fruit , num1 durian , num2 jambul , num3 huckleberry , num4 passionfruit , num5 banana . How many passionfruit does he have ?	num4
+Tom has num0 date , num1 blackberry , num2 pomelo , num3 pear . How many blackberry does he have ?	num1
+Tom has num0 watermelon , num1 cranberry . How many watermelon does he have ?	num0
+Tom has num0 pomegranate , num1 miracle fruit , num2 fig , num3 elderberry , num4 currant , num5 boysenberry . How many currant does he have ?	num4
+Tom has num0 redcurrant , num1 nance , num2 plum , num3 kumquat , num4 tamarind , num5 durian , num6 purple mangosteen , num7 cherry , num8 watermelon . How many kumquat does he have ?	num3
+Tom has num0 pomegranate , num1 clementine , num2 lychee , num3 orange , num4 chico fruit , num5 pineapple . How many pomegranate does he have ?	num0
+Tom has num0 cucumber , num1 mulberry , num2 salak , num3 blood orange , num4 elderberry , num5 yuzu , num6 watermelon , num7 raspberry , num8 blueberry , num9 mangosteen . How many yuzu does he have ?	num5
+Tom has num0 cherimoya , num1 boysenberry , num2 crab apples , num3 papaya , num4 currant , num5 ugli fruit , num6 persimmon , num7 fig . How many papaya does he have ?	num3
+Tom has num0 elderberry , num1 purple mangosteen , num2 melon , num3 juniper berry . How many elderberry does he have ?	num0
+Tom has num0 quince , num1 feijoa , num2 salmonberry , num3 currant , num4 cloudberry . How many quince does he have ?	num0
+Tom has num0 melon , num1 custard apple , num2 tamarillo , num3 juniper berry , num4 lime . How many custard apple does he have ?	num1
+Tom has num0 plum , num1 lemon , num2 fig , num3 loquat , num4 banana , num5 orange , num6 gonzoberry . How many gonzoberry does he have ?	num6
+Tom has num0 pineapple , num1 nance , num2 currant , num3 longan , num4 plantain . How many currant does he have ?	num2
+Tom has num0 blueberry , num1 currant , num2 blood orange , num3 raisin , num4 bilberry , num5 boysenberry , num6 lime , num7 dragonfruit , num8 tamarind . How many currant does he have ?	num1
+Tom has num0 pomelo , num1 banana , num2 mango , num3 damson . How many damson does he have ?	num3
+Tom has num0 cranberry , num1 chico fruit , num2 lime , num3 pomelo , num4 raspberry , num5 redcurrant , num6 lemon , num7 cucumber , num8 dragonfruit . How many cucumber does he have ?	num7
+Tom has num0 quince , num1 gooseberry , num2 lemon . How many quince does he have ?	num0
+Tom has num0 grapefruit , num1 currant , num2 lemon , num3 damson , num4 blackcurrant , num5 gooseberry , num6 orange . How many grapefruit does he have ?	num0
+Tom has num0 cherry , num1 satsuma . How many satsuma does he have ?	num1
+Tom has num0 banana , num1 custard apple , num2 mango , num3 nance , num4 date , num5 salak , num6 redcurrant , num7 nectarine , num8 lychee , num9 blood orange . How many lychee does he have ?	num8
+Tom has num0 passionfruit , num1 persimmon , num2 nance , num3 papaya , num4 jujube , num5 currant , num6 banana . How many jujube does he have ?	num4
+Tom has num0 nectarine , num1 feijoa , num2 durian , num3 miracle fruit , num4 guava , num5 goji berry , num6 quince . How many guava does he have ?	num4
+Tom has num0 custard apple , num1 mulberry , num2 cloudberry , num3 salal berry , num4 blueberry , num5 boysenberry , num6 raspberry , num7 mandarine . How many cloudberry does he have ?	num2
+Tom has num0 guava , num1 cloudberry , num2 lychee . How many cloudberry does he have ?	num1
+Tom has num0 star fruit , num1 blood orange , num2 cherimoya , num3 pomelo , num4 cloudberry , num5 loquat , num6 custard apple , num7 honeyberry . How many pomelo does he have ?	num3
+Tom has num0 miracle fruit , num1 redcurrant , num2 watermelon , num3 durian , num4 jabuticaba . How many jabuticaba does he have ?	num4
+Tom has num0 mango , num1 gonzoberry , num2 juniper berry , num3 crab apples , num4 huckleberry , num5 raisin , num6 longan , num7 guava , num8 chico fruit . How many raisin does he have ?	num5
+Tom has num0 lychee , num1 durian , num2 yuzu , num3 plantain , num4 passionfruit , num5 huckleberry , num6 salmonberry . How many yuzu does he have ?	num2
+Tom has num0 kiwifruit , num1 jujube , num2 yuzu , num3 rambutan , num4 lychee , num5 banana , num6 goji berry . How many rambutan does he have ?	num3
+Tom has num0 lime , num1 quince , num2 blackberry , num3 feijoa , num4 jabuticaba , num5 yuzu , num6 peach , num7 lemon . How many lemon does he have ?	num7
+Tom has num0 plantain , num1 quince , num2 raisin , num3 bilberry . How many quince does he have ?	num1
+Tom has num0 damson , num1 plum , num2 tamarind . How many damson does he have ?	num0
+Tom has num0 star fruit , num1 papaya , num2 lime , num3 grape , num4 date , num5 lemon , num6 kumquat . How many kumquat does he have ?	num6
+Tom has num0 plum , num1 custard apple , num2 jackfruit , num3 loquat , num4 plantain . How many loquat does he have ?	num3
+Tom has num0 redcurrant , num1 blueberry . How many redcurrant does he have ?	num0
+Tom has num0 honeydew , num1 pomelo , num2 strawberry . How many strawberry does he have ?	num2
+Tom has num0 mangosteen , num1 cantaloupe . How many mangosteen does he have ?	num0
+Tom has num0 gooseberry , num1 grapefruit , num2 raspberry , num3 mango , num4 juniper berry . How many mango does he have ?	num3
+Tom has num0 marionberry , num1 redcurrant , num2 cucumber . How many cucumber does he have ?	num2
+Tom has num0 tamarind , num1 coconut , num2 cucumber , num3 purple mangosteen . How many cucumber does he have ?	num2
+Tom has num0 honeydew , num1 cucumber , num2 cantaloupe , num3 quince , num4 cherry , num5 blackcurrant , num6 dragonfruit , num7 tamarind , num8 passionfruit , num9 olive . How many dragonfruit does he have ?	num6
+Tom has num0 grape , num1 pomegranate , num2 strawberry , num3 yuzu , num4 jujube . How many pomegranate does he have ?	num1
+Tom has num0 date , num1 cherry , num2 mulberry , num3 custard apple , num4 purple mangosteen , num5 gooseberry . How many gooseberry does he have ?	num5
+Tom has num0 persimmon , num1 salak , num2 chico fruit , num3 cherry , num4 peach , num5 lychee , num6 cantaloupe , num7 satsuma , num8 bilberry , num9 cherimoya . How many persimmon does he have ?	num0
+Tom has num0 damson , num1 persimmon , num2 blueberry , num3 raisin , num4 cherry , num5 cranberry , num6 clementine , num7 satsuma , num8 dragonfruit . How many damson does he have ?	num0
+Tom has num0 mandarine , num1 melon . How many mandarine does he have ?	num0
+Tom has num0 rambutan , num1 star fruit , num2 cantaloupe , num3 peach , num4 redcurrant , num5 crab apples , num6 huckleberry , num7 tangerine , num8 lime . How many cantaloupe does he have ?	num2
+Tom has num0 nectarine , num1 watermelon , num2 bilberry , num3 satsuma . How many satsuma does he have ?	num3
+Tom has num0 tamarillo , num1 raspberry , num2 tangerine , num3 custard apple , num4 grape , num5 redcurrant , num6 salak , num7 boysenberry . How many tangerine does he have ?	num2
+Tom has num0 custard apple , num1 lychee , num2 loquat , num3 kumquat , num4 pomegranate , num5 blood orange , num6 lime , num7 ugli fruit , num8 nance , num9 watermelon . How many pomegranate does he have ?	num4
+Tom has num0 avocado , num1 watermelon , num2 crab apples , num3 cloudberry , num4 honeyberry , num5 jackfruit , num6 quince , num7 huckleberry . How many huckleberry does he have ?	num7
+Tom has num0 currant , num1 tamarind , num2 strawberry . How many currant does he have ?	num0
+Tom has num0 papaya , num1 salal berry , num2 honeyberry , num3 elderberry , num4 honeydew , num5 plum . How many elderberry does he have ?	num3
+Tom has num0 marionberry , num1 tamarillo , num2 melon , num3 lemon , num4 fig , num5 mandarine , num6 longan . How many lemon does he have ?	num3
+Tom has num0 durian , num1 ugli fruit , num2 yuzu , num3 plum , num4 soursop , num5 blackcurrant . How many yuzu does he have ?	num2
+Tom has num0 yuzu , num1 miracle fruit , num2 jabuticaba . How many yuzu does he have ?	num0
+Tom has num0 peach , num1 kiwifruit , num2 passionfruit , num3 nance , num4 avocado , num5 currant . How many avocado does he have ?	num4
+Tom has num0 honeyberry , num1 boysenberry , num2 currant , num3 melon , num4 lime . How many currant does he have ?	num2
+Tom has num0 mangosteen , num1 longan , num2 durian , num3 blood orange , num4 coconut . How many blood orange does he have ?	num3
+Tom has num0 mandarine , num1 durian , num2 star fruit , num3 nectarine , num4 jackfruit , num5 satsuma , num6 blackberry . How many durian does he have ?	num1
+Tom has num0 melon , num1 loquat , num2 strawberry , num3 passionfruit , num4 honeydew , num5 jujube , num6 dragonfruit , num7 rambutan . How many passionfruit does he have ?	num3
+Tom has num0 kiwifruit , num1 quince , num2 salal berry , num3 apple , num4 clementine , num5 rambutan , num6 avocado , num7 longan , num8 crab apples , num9 grape . How many salal berry does he have ?	num2
+Tom has num0 plum , num1 tamarillo , num2 cranberry , num3 salak , num4 gonzoberry , num5 currant , num6 date , num7 mangosteen . How many salak does he have ?	num3
+Tom has num0 coconut , num1 melon , num2 apple , num3 blood orange , num4 crab apples , num5 pomegranate , num6 plum . How many pomegranate does he have ?	num5
+Tom has num0 huckleberry , num1 nectarine . How many nectarine does he have ?	num1
+Tom has num0 lychee , num1 nectarine , num2 papaya , num3 jambul , num4 dragonfruit , num5 kiwifruit , num6 durian , num7 jabuticaba . How many kiwifruit does he have ?	num5
+Tom has num0 kiwifruit , num1 honeydew , num2 gooseberry , num3 dragonfruit . How many gooseberry does he have ?	num2
+Tom has num0 honeyberry , num1 lemon , num2 ugli fruit , num3 nectarine , num4 salmonberry , num5 apricot , num6 salal berry , num7 gonzoberry . How many apricot does he have ?	num5
+Tom has num0 yuzu , num1 purple mangosteen , num2 marionberry , num3 feijoa . How many feijoa does he have ?	num3
+Tom has num0 apple , num1 mango , num2 lemon , num3 mandarine . How many mango does he have ?	num1
+Tom has num0 durian , num1 coconut , num2 nance , num3 juniper berry , num4 quince , num5 pear , num6 marionberry , num7 lemon , num8 star fruit . How many lemon does he have ?	num7
+Tom has num0 bilberry , num1 avocado , num2 papaya , num3 gonzoberry , num4 fig , num5 longan , num6 star fruit . How many star fruit does he have ?	num6
+Tom has num0 cantaloupe , num1 yuzu . How many cantaloupe does he have ?	num0
+Tom has num0 yuzu , num1 purple mangosteen , num2 banana . How many purple mangosteen does he have ?	num1
+Tom has num0 pomegranate , num1 pineapple , num2 raisin , num3 nectarine , num4 blueberry , num5 avocado , num6 fig , num7 goji berry . How many goji berry does he have ?	num7
+Tom has num0 apricot , num1 loquat , num2 lemon , num3 goji berry , num4 plum , num5 currant , num6 rambutan , num7 lime . How many rambutan does he have ?	num6
+Tom has num0 raisin , num1 mangosteen , num2 star fruit , num3 mango , num4 lime , num5 coconut , num6 mulberry . How many mulberry does he have ?	num6
+Tom has num0 jackfruit , num1 apple , num2 cranberry , num3 salal berry , num4 redcurrant , num5 blood orange , num6 miracle fruit . How many salal berry does he have ?	num3
+Tom has num0 mangosteen , num1 salal berry , num2 grape , num3 blood orange , num4 kumquat , num5 satsuma , num6 banana , num7 pomegranate , num8 lemon , num9 longan . How many kumquat does he have ?	num4
+Tom has num0 crab apples , num1 blueberry , num2 lychee , num3 nance , num4 purple mangosteen , num5 mango , num6 damson , num7 banana , num8 peach . How many banana does he have ?	num7
+Tom has num0 papaya , num1 soursop . How many papaya does he have ?	num0
+Tom has num0 mango , num1 passionfruit , num2 pineapple , num3 salak , num4 boysenberry , num5 honeydew . How many salak does he have ?	num3
+Tom has num0 gooseberry , num1 orange , num2 kiwifruit , num3 cloudberry , num4 salmonberry , num5 jambul , num6 mandarine , num7 jujube , num8 date , num9 passionfruit . How many orange does he have ?	num1
+Tom has num0 custard apple , num1 honeyberry , num2 yuzu , num3 pineapple , num4 cloudberry , num5 blackcurrant . How many honeyberry does he have ?	num1
+Tom has num0 redcurrant , num1 plum , num2 quince , num3 grapefruit , num4 cherry , num5 yuzu , num6 boysenberry . How many yuzu does he have ?	num5
+Tom has num0 cloudberry , num1 marionberry , num2 loquat , num3 lychee , num4 tamarind , num5 persimmon , num6 grape , num7 salak , num8 jackfruit . How many lychee does he have ?	num3
+Tom has num0 juniper berry , num1 kumquat , num2 purple mangosteen , num3 nectarine , num4 pear , num5 tamarind , num6 honeydew , num7 grape , num8 elderberry , num9 cranberry . How many juniper berry does he have ?	num0
+Tom has num0 apricot , num1 salak , num2 currant . How many apricot does he have ?	num0
+Tom has num0 gooseberry , num1 mango , num2 coconut , num3 kumquat , num4 guava , num5 plantain , num6 kiwifruit . How many kumquat does he have ?	num3
+Tom has num0 cherimoya , num1 date , num2 durian , num3 blackberry . How many durian does he have ?	num2
+Tom has num0 durian , num1 honeyberry . How many honeyberry does he have ?	num1
+Tom has num0 kumquat , num1 guava , num2 tamarillo , num3 custard apple , num4 salak , num5 jujube , num6 star fruit , num7 raisin , num8 apple . How many guava does he have ?	num1
+Tom has num0 ugli fruit , num1 miracle fruit , num2 fig . How many fig does he have ?	num2
+Tom has num0 lemon , num1 damson , num2 pomelo , num3 rambutan , num4 passionfruit , num5 quince , num6 elderberry , num7 star fruit , num8 yuzu , num9 mulberry . How many pomelo does he have ?	num2
+Tom has num0 mango , num1 raspberry , num2 raisin , num3 durian , num4 cranberry . How many mango does he have ?	num0
+Tom has num0 juniper berry , num1 kiwifruit , num2 ugli fruit , num3 apple , num4 mangosteen , num5 cloudberry , num6 honeydew . How many honeydew does he have ?	num6
+Tom has num0 salal berry , num1 mandarine , num2 chico fruit , num3 orange , num4 papaya , num5 loquat . How many chico fruit does he have ?	num2
+Tom has num0 salak , num1 pear , num2 dragonfruit , num3 mandarine , num4 currant . How many salak does he have ?	num0
+Tom has num0 honeyberry , num1 cherry , num2 elderberry , num3 salmonberry , num4 jambul , num5 orange , num6 melon , num7 grape , num8 pomelo . How many elderberry does he have ?	num2
+Tom has num0 avocado , num1 rambutan , num2 peach , num3 clementine , num4 pomelo , num5 mango , num6 strawberry . How many clementine does he have ?	num3
+Tom has num0 star fruit , num1 apricot , num2 crab apples , num3 satsuma , num4 pomegranate . How many apricot does he have ?	num1
+Tom has num0 nance , num1 date , num2 mango . How many mango does he have ?	num2
+Tom has num0 quince , num1 tamarillo , num2 goji berry , num3 pomelo , num4 honeyberry , num5 elderberry , num6 clementine . How many goji berry does he have ?	num2
+Tom has num0 cherimoya , num1 cloudberry , num2 kumquat , num3 tamarind . How many cloudberry does he have ?	num1
+Tom has num0 mangosteen , num1 pear , num2 mango , num3 juniper berry . How many mango does he have ?	num2
+Tom has num0 tangerine , num1 peach , num2 currant , num3 pineapple , num4 damson , num5 lychee . How many tangerine does he have ?	num0
+Tom has num0 clementine , num1 nance , num2 watermelon , num3 blood orange , num4 ugli fruit . How many nance does he have ?	num1
+Tom has num0 jackfruit , num1 pear , num2 elderberry , num3 tangerine , num4 pineapple , num5 crab apples , num6 pomelo , num7 guava . How many pomelo does he have ?	num6
+Tom has num0 strawberry , num1 longan , num2 guava , num3 melon , num4 olive , num5 bilberry , num6 honeyberry , num7 redcurrant , num8 nance , num9 gooseberry . How many guava does he have ?	num2
+Tom has num0 pineapple , num1 watermelon , num2 jackfruit , num3 kiwifruit , num4 apricot , num5 gonzoberry , num6 huckleberry . How many gonzoberry does he have ?	num5
+Tom has num0 pomegranate , num1 clementine , num2 goji berry , num3 guava , num4 olive . How many goji berry does he have ?	num2
+Tom has num0 fig , num1 durian , num2 yuzu . How many yuzu does he have ?	num2
+Tom has num0 juniper berry , num1 gooseberry , num2 cloudberry , num3 jambul , num4 mulberry . How many mulberry does he have ?	num4
+Tom has num0 raspberry , num1 cranberry , num2 rambutan , num3 currant , num4 longan . How many raspberry does he have ?	num0
+Tom has num0 plum , num1 watermelon , num2 yuzu , num3 tangerine . How many yuzu does he have ?	num2
+Tom has num0 cherimoya , num1 longan , num2 ugli fruit , num3 currant , num4 jackfruit , num5 jabuticaba , num6 mandarine , num7 cranberry . How many jabuticaba does he have ?	num5
+Tom has num0 fig , num1 passionfruit , num2 salmonberry , num3 star fruit , num4 blueberry , num5 miracle fruit , num6 cantaloupe , num7 cherimoya . How many cherimoya does he have ?	num7
+Tom has num0 pomegranate , num1 satsuma , num2 jabuticaba , num3 mangosteen , num4 grapefruit , num5 huckleberry , num6 blackberry . How many jabuticaba does he have ?	num2
+Tom has num0 rambutan , num1 blood orange , num2 chico fruit , num3 melon , num4 pomelo , num5 gooseberry , num6 olive , num7 strawberry , num8 tangerine . How many rambutan does he have ?	num0
+Tom has num0 miracle fruit , num1 mangosteen , num2 yuzu , num3 salak , num4 durian , num5 currant , num6 lychee , num7 jambul , num8 strawberry , num9 fig . How many strawberry does he have ?	num8

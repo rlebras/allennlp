@@ -37,7 +37,7 @@ import json
 import logging
 import os
 from copy import deepcopy
-
+from allennlp.models.archival import load_archive
 from allennlp.commands.evaluate import evaluate
 from allennlp.commands.subcommand import Subcommand
 from allennlp.common.checks import ConfigurationError
@@ -84,6 +84,19 @@ class Train(Subcommand):
                                default=False,
                                help='outputs tqdm status on separate lines and slows tqdm refresh rate')
 
+        subparser.add_argument('--archive_file', type=str,
+                               help='the archived model to make predictions with')
+
+        subparser.add_argument('--output-file', type=argparse.FileType('w'),
+                               help='path to output file')
+
+        subparser.add_argument('--cuda-device', type=int, default=0,
+                                 help='id of GPU to use (if any)')
+
+        subparser.add_argument('--weights-file',
+                               type=str,
+                               help='a path that overrides which weights file to use')
+
         subparser.set_defaults(func=train_model_from_args)
 
         return subparser
@@ -92,14 +105,16 @@ def train_model_from_args(args: argparse.Namespace):
     """
     Just converts from an ``argparse.Namespace`` object to string paths.
     """
-    train_model_from_file(args.param_path,
+    train_model_from_file(args,
+                          args.param_path,
                           args.serialization_dir,
                           args.overrides,
                           args.file_friendly_logging,
                           args.recover)
 
 
-def train_model_from_file(parameter_filename: str,
+def train_model_from_file(args: argparse.Namespace,
+                          parameter_filename: str,
                           serialization_dir: str,
                           overrides: str = "",
                           file_friendly_logging: bool = False,
@@ -126,7 +141,7 @@ def train_model_from_file(parameter_filename: str,
     """
     # Load the experiment config from a file and pass it to ``train_model``.
     params = Params.from_file(parameter_filename, overrides)
-    return train_model(params, serialization_dir, file_friendly_logging, recover)
+    return train_model(args, params, serialization_dir, file_friendly_logging, recover)
 
 
 def datasets_from_params(params: Params) -> Dict[str, Iterable[Instance]]:
@@ -223,7 +238,8 @@ def create_serialization_dir(params: Params, serialization_dir: str, recover: bo
         os.makedirs(serialization_dir)
 
 
-def train_model(params: Params,
+def train_model(args: argparse.Namespace,
+                params: Params,
                 serialization_dir: str,
                 file_friendly_logging: bool = False,
                 recover: bool = False) -> Model:
@@ -262,13 +278,24 @@ def train_model(params: Params,
             raise ConfigurationError(f"invalid 'dataset_for_vocab_creation' {dataset}")
 
     logger.info("Creating a vocabulary using %s data.", ", ".join(datasets_for_vocab_creation))
-    vocab = Vocabulary.from_params(params.pop("vocabulary", {}),
-                                   (instance for key, dataset in all_datasets.items()
-                                    for instance in dataset
-                                    if key in datasets_for_vocab_creation))
-    vocab.save_to_files(os.path.join(serialization_dir, "vocabulary"))
+    if args.archive_file is not None:
+        params.pop("vocabulary", {})
+        params.pop('model')
+        archive = load_archive(args.archive_file,
+                               weights_file=args.weights_file,
+                               cuda_device=args.cuda_device,
+                               overrides=args.overrides)
+        model = archive.model
+        model.eval()
+        vocab = model.vocab
+    else:
+        vocab = Vocabulary.from_params(params.pop("vocabulary", {}),
+                                       (instance for key, dataset in all_datasets.items()
+                                        for instance in dataset
+                                        if key in datasets_for_vocab_creation))
+        vocab.save_to_files(os.path.join(serialization_dir, "vocabulary"))
+        model = Model.from_params(vocab, params.pop('model'))
 
-    model = Model.from_params(vocab, params.pop('model'))
     iterator = DataIterator.from_params(params.pop("iterator"))
     iterator.index_with(vocab)
 
@@ -283,6 +310,10 @@ def train_model(params: Params,
                                   train_data,
                                   validation_data,
                                   trainer_params)
+
+    if args.archive_file is not None:
+        trainer._patience = 10000
+        trainer._num_epochs = 10000
 
     evaluate_on_test = params.pop_bool("evaluate_on_test", False)
     params.assert_empty('base train command')

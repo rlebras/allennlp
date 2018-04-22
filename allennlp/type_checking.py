@@ -5,10 +5,11 @@ END_SYMBOL = "@@END@@"
 
 def valid_next_characters(function_calls, arg_numbers, last_token, valid_numbers, valid_variables,
                           valid_types):
-    assert '?' in valid_variables
-    assert '?' in valid_numbers
-    assert '(' in valid_numbers
-    assert '(' in valid_variables
+    valid_variables.add('?')
+    valid_variables.add('(')
+    valid_numbers.add('?')
+    valid_numbers.add('(')
+
     num_args = arg_numbers[-1]
     if last_token == END_SYMBOL:
         return {END_SYMBOL}

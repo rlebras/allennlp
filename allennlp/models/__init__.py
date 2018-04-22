@@ -14,3 +14,4 @@ from allennlp.models.simple_tagger import SimpleTagger
 from allennlp.models.coreference_resolution.coref import CoreferenceResolver
 from allennlp.models.constituency_parser import SpanConstituencyParser
 from allennlp.models.biattentive_classification_network import BiattentiveClassificationNetwork
+from allennlp.models.encoder_decoders.Model import SimpleCopy

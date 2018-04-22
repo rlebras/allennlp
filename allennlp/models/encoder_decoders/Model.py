@@ -18,6 +18,7 @@ from allennlp.modules.similarity_functions import SimilarityFunction
 from allennlp.modules.token_embedders import Embedding
 from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_logits, weighted_sum
 from allennlp.type_checking import valid_next_characters, update_state
+import random
 
 """
 And (bool, ...) : bool
@@ -32,8 +33,15 @@ Plus   (num, num) : num
 """
 
 
-@Model.register("simple_seq2seq")
-class SimpleSeq2Seq(Model):
+def batched_index_select(input_tensor, index_tensor):
+    dummy = index_tensor.unsqueeze(1).unsqueeze(2).expand(index_tensor.size(0), 1,
+                                                          input_tensor.size(2))
+    out = input_tensor.gather(1, dummy)  # b x e x f
+    return out.squeeze(dim=1)
+
+
+@Model.register("simple_copy")
+class SimpleCopy(Model):
     """
     This ``SimpleSeq2Seq`` class is a :class:`Model` which takes a sequence, encodes it, and then
     uses the encoded representations to decode another sequence.  You can use this as the basis for
@@ -89,7 +97,7 @@ class SimpleSeq2Seq(Model):
                  target_embedding_dim: int = None,
                  attention_function: SimilarityFunction = None,
                  scheduled_sampling_ratio: float = 0.0) -> None:
-        super(SimpleSeq2Seq, self).__init__(vocab)
+        super(SimpleCopy, self).__init__(vocab)
         self._source_embedder = source_embedder
         self._encoder = encoder
         self._max_decoding_steps = max_decoding_steps
@@ -106,8 +114,7 @@ class SimpleSeq2Seq(Model):
         # hidden state of the decoder with that of the final hidden states of the encoder. Also, if
         # we're using attention with ``DotProductSimilarity``, this is needed.
         self._decoder_output_dim = self._encoder.get_output_dim()
-        target_embedding_dim = target_embedding_dim or self._source_embedder.get_output_dim()
-        self._target_embedder = Embedding(num_classes, target_embedding_dim)
+        target_embedding_dim = self._encoder.get_output_dim()
         if self._attention_function:
             self._decoder_attention = Attention(self._attention_function)
             # The output of attention, a weighted average over encoder outputs, will be
@@ -117,7 +124,14 @@ class SimpleSeq2Seq(Model):
             self._decoder_input_dim = target_embedding_dim
         # TODO (pradeep): Do not hardcode decoder cell type.
         self._decoder_cell = LSTMCell(self._decoder_input_dim, self._decoder_output_dim)
-        self._output_projection_layer = Linear(self._decoder_output_dim, num_classes)
+        self._output_embeddings = torch.nn.Parameter(
+            torch.randn(num_classes, target_embedding_dim) / 10)
+        self._random_embedding_size = 50
+        self._special_tokens = torch.nn.Parameter(torch.randn(3, self._random_embedding_size) / 10)
+        self._stem_scale = torch.nn.Parameter(torch.randn(1, 1) / 10)
+        # self._stem_embedding = torch.nn.Parameter(torch.randn(251, self._random_embedding_size))
+        # self._permutable_indices = list(range(3, 251))
+
 
     def beam_search(self,  # type: ignore
                     source_tokens: Dict[str, torch.LongTensor],
@@ -161,7 +175,8 @@ class SimpleSeq2Seq(Model):
         valid_variables.add('(')
         valid_variables.add('?')
         valid_units = {'unit' + str(i) for i in range(20)}
-        valid_numbers = {self.vocab.get_token_from_index(index, 'source_tokens') for index in source_indices[0]}
+        valid_numbers = {self.vocab.get_token_from_index(index, 'source_tokens') for index in
+                         source_indices[0]}
         valid_numbers = {x for x in valid_numbers if x.startswith('num')}
         # print(valid_numbers)
         valid_numbers.add('(')
@@ -186,23 +201,24 @@ class SimpleSeq2Seq(Model):
                     encoder_outputs,
                     source_mask
                 )
+                print(decoder_input.size())
                 decoder_hidden, decoder_context = self._decoder_cell(decoder_input,
                                                                      (decoder_hidden,
                                                                       decoder_context))
                 output_projections = self._output_projection_layer(decoder_hidden)
                 class_log_probabilities = \
-                F.log_softmax(output_projections, dim=-1).data.cpu().numpy()[0]
+                    F.log_softmax(output_projections, dim=-1).data.cpu().numpy()[0]
                 assert self.vocab.get_vocab_size(self._target_namespace) == len(
                     class_log_probabilities), (self.vocab.get_vocab_size(self._target_namespace),
                                                class_log_probabilities.shape[0])
                 decoded_new_variable = False
                 decoded_new_unit = False
                 valid_actions = valid_next_characters(model['function_calls'],
-                                      model['arg_numbers'],
-                                      action_list[-1],
-                                      valid_numbers,
-                                      valid_variables,
-                                      valid_units)
+                                                      model['arg_numbers'],
+                                                      action_list[-1],
+                                                      valid_numbers,
+                                                      valid_variables,
+                                                      valid_units)
                 for action_index, action_log_probability in enumerate(class_log_probabilities):
                     action = self.vocab.get_token_from_index(action_index, self._target_namespace)
                     if action not in valid_actions:
@@ -215,7 +231,8 @@ class SimpleSeq2Seq(Model):
                     #     elif not seen:
                     #         decoded_new_variable = True
 
-                    function_calls, arg_numbers = update_state(model['function_calls'], model['arg_numbers'], action)
+                    function_calls, arg_numbers = update_state(model['function_calls'],
+                                                               model['arg_numbers'], action)
                     new_model = {
                         'action_list': action_list + [action],
                         'last_prediction': action_index,
@@ -240,6 +257,7 @@ class SimpleSeq2Seq(Model):
     @overrides
     def forward(self,  # type: ignore
                 source_tokens: Dict[str, torch.LongTensor],
+                stem_tokens: Dict[str, torch.LongTensor],
                 target_tokens: Dict[str, torch.LongTensor] = None) -> Dict[str, torch.Tensor]:
         # pylint: disable=arguments-differ
         """
@@ -253,10 +271,26 @@ class SimpleSeq2Seq(Model):
         target_tokens : Dict[str, torch.LongTensor], optional (default = None)
            Output of ``Textfield.as_array()`` applied on target ``TextField``. We assume that the
            target tokens are also represented as a ``TextField``.
+           stem_tokens:
         """
         # (batch_size, input_sequence_length, encoder_output_dim)
         embedded_input = self._source_embedder(source_tokens)
-        batch_size, _, _ = embedded_input.size()
+
+        stem_tokens = stem_tokens['tokens']
+        batch_size, num_timesteps, original_embedding_dim = embedded_input.size()
+        # random.shuffle(self._permutable_indices)
+        random_vocab = torch.randn(num_timesteps, self._random_embedding_size)
+        random_vocab = torch.autograd.Variable(random_vocab, requires_grad=False)
+        random_vocab = random_vocab.cuda() * self._stem_scale.cuda()
+        random_vocab = torch.cat([self._special_tokens, random_vocab], dim=0)
+        flattened_indices = stem_tokens.view(stem_tokens.numel())
+        random_embeddings = torch.index_select(random_vocab, 0, flattened_indices)
+        # (batch_size, nm_timesteps, embedding_dim)
+        random_embeddings = random_embeddings.view((batch_size,
+                                                    num_timesteps,
+                                                    self._random_embedding_size))
+        embedded_input = torch.cat([embedded_input, random_embeddings], dim=2)
+        # assert batch_size == 1
         source_mask = get_text_field_mask(source_tokens)
         encoder_outputs = self._encoder(embedded_input, source_mask)
         final_encoder_output = encoder_outputs[:, -1]  # (batch_size, encoder_output_dim)
@@ -275,8 +309,15 @@ class SimpleSeq2Seq(Model):
         step_logits = []
         step_probabilities = []
         step_predictions = []
+        # encoder_outputs has shape (batch size, num time steps, embedding dim)
+        # self._output_embeddings needs to be expanded to (batch size, num actions, embedding dim)
+        # print(self._output_embeddings.data.cpu().numpy())
+        # print(encoder_outputs.data.cpu().numpy())
+        basic_actions = self._output_embeddings.unsqueeze(0).expand((batch_size, -1, -1))
+        output_embeddings = torch.cat([basic_actions, encoder_outputs], dim=1)
+        # output_embeddings should have shape (batch size, num actions + num time steps, embedding dim)
         for timestep in range(num_decoding_steps):
-            if self.training and all(torch.rand(1) >= self._scheduled_sampling_ratio):
+            if self.training:
                 input_choices = targets[:, timestep]
             else:
                 if timestep == 0:
@@ -286,20 +327,21 @@ class SimpleSeq2Seq(Model):
                                              .resize_(batch_size).fill_(self._start_index))
                 else:
                     input_choices = last_predictions
-
-            decoder_input = self._prepare_decode_step_input(input_choices, decoder_hidden,
-                                                            encoder_outputs, source_mask)
+            decoder_input = self._prepare_decode_step_input(input_choices,
+                                                            output_embeddings,
+                                                            decoder_hidden,
+                                                            encoder_outputs,
+                                                            source_mask)
             decoder_hidden, decoder_context = self._decoder_cell(decoder_input,
                                                                  (decoder_hidden, decoder_context))
-            # (batch_size, num_classes)
-            output_projections = self._output_projection_layer(decoder_hidden)
-            # list of (batch_size, 1, num_classes)
-            step_logits.append(output_projections.unsqueeze(1))
-            class_probabilities = F.softmax(output_projections, dim=-1)
+            output_logits = (output_embeddings * decoder_hidden.unsqueeze(1)).sum(dim=-1)
+
+            # output_logits (batch size, num actions + num tokens)
+            class_probabilities = torch.nn.functional.softmax(output_logits, dim=-1)
+            step_logits.append(output_logits.unsqueeze(1))
             _, predicted_classes = torch.max(class_probabilities, 1)
             step_probabilities.append(class_probabilities.unsqueeze(1))
             last_predictions = predicted_classes
-            # (batch_size, 1)
             step_predictions.append(last_predictions.unsqueeze(1))
         # step_logits is a list containing tensors of shape (batch_size, 1, num_classes)
         # This is (batch_size, num_decoding_steps, num_classes)
@@ -321,6 +363,7 @@ class SimpleSeq2Seq(Model):
 
     def _prepare_decode_step_input(self,
                                    input_indices: torch.LongTensor,
+                                   embeddings: torch.LongTensor,
                                    decoder_hidden_state: torch.LongTensor = None,
                                    encoder_outputs: torch.LongTensor = None,
                                    encoder_outputs_mask: torch.LongTensor = None) -> torch.LongTensor:
@@ -348,7 +391,7 @@ class SimpleSeq2Seq(Model):
         """
         # input_indices : (batch_size,)  since we are processing these one timestep at a time.
         # (batch_size, target_embedding_dim)
-        embedded_input = self._target_embedder(input_indices)
+        embedded_input = batched_index_select(embeddings, input_indices)
         if self._attention_function:
             # encoder_outputs : (batch_size, input_sequence_length, encoder_output_dim)
             # Ensuring mask is also a FloatTensor. Or else the multiplication within attention will
@@ -422,7 +465,7 @@ class SimpleSeq2Seq(Model):
         if not isinstance(predicted_indices, numpy.ndarray):
             predicted_indices = predicted_indices.data.cpu().numpy()
         all_predicted_tokens = []
-        for indices in predicted_indices:
+        for instance_index, indices in enumerate(predicted_indices):
             indices = list(indices)
             # Collect indices till the first end_symbol
 
@@ -430,15 +473,20 @@ class SimpleSeq2Seq(Model):
                 indices = indices[:indices.index(self._end_index)]
             else:
                 print(indices, self._end_index)
-            predicted_tokens = [
-                self.vocab.get_token_from_index(x, namespace=self._target_namespace)
-                for x in indices]
+            predicted_tokens = []
+            for index in indices:
+                if index < self.vocab.get_vocab_size(self._target_namespace):
+                    token = self.vocab.get_token_from_index(index,
+                                                            namespace=self._target_namespace)
+                else:
+                    token = str(index - self.vocab.get_vocab_size(self._target_namespace))
+                predicted_tokens.append(token)
             all_predicted_tokens.append(predicted_tokens)
         output_dict["predicted_tokens"] = all_predicted_tokens
         return output_dict
 
     @classmethod
-    def from_params(cls, vocab, params: Params) -> 'SimpleSeq2Seq':
+    def from_params(cls, vocab, params: Params) -> 'SimpleCopy':
         source_embedder_params = params.pop("source_embedder")
         source_embedder = TextFieldEmbedder.from_params(vocab, source_embedder_params)
         encoder = Seq2SeqEncoder.from_params(params.pop("encoder"))
