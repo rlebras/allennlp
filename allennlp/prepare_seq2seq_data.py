@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 import spacy
 import itertools
 
-from allennlp.type_checking import valid_next_characters, update_state, \
+from type_checking import valid_next_characters, update_state, \
     START_SYMBOL, END_SYMBOL
 
 nlp = spacy.load('en')
