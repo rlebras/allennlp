@@ -243,14 +243,14 @@ def write_data(data, file_name, num_iters, randomize, silent=True):
     original_units = []
     for _ in range(num_iters):
         for question_number, question in enumerate(data):
-            if question['lSemantics'] == '':
+            if question['semantics'] == '':
                 continue
             # if question['iIndex'] != '6226':
             #     continue
-            source, number_to_token = standardize_question(question['sQuestion'])
+            source, number_to_token = standardize_question(question['question'])
             try:
                 target, (_, type_assignments) = standardize_logical_form_with_validation(
-                    question['lSemantics'],
+                    question['semantics'],
                     number_to_token,
                     randomize=randomize)
                 original_units.extend(type_assignments.keys())
@@ -349,14 +349,14 @@ def create_sentence_aligned_data(alignments):
 
 if __name__ == '__main__':
     # prepare_synthetic_data()
-    with open('/Users/vidurj/euclid/data/private/third_party/alg514/alg514_alignments.json',
+    with open('/Users/ronanlb/ai2/euclid/workspace/euclid/data/private/WebQuestions_semantics.json',
               'r') as f:
         data = json.load(f)
 
-    with open('allennlp/additional_annotations.json', 'r') as f:
-        additional_data = json.load(f)
+#    with open('allennlp/additional_annotations.json', 'r') as f:
+#        additional_data = json.load(f)
 
-    all_train_subsets = create_sentence_aligned_data(data[:-100])
-    write_data(all_train_subsets + data[:-100], 'train.txt', randomize=True, num_iters=3)
-    write_data(data[-100:], 'dev.txt', randomize=False, num_iters=1)
-    write_data(data[-100:], 'test.txt', randomize=True, num_iters=1)
+ #   all_train_subsets = create_sentence_aligned_data(data[:-100])
+    write_data(data[:-100], 'sigmadolphin_train.txt', randomize=True, num_iters=3)
+    write_data(data[-100:], 'sigmadolphin_dev.txt', randomize=False, num_iters=1)
+    write_data(data[-100:], 'sigmadolphin_test.txt', randomize=True, num_iters=1)
