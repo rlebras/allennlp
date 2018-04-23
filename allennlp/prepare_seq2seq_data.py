@@ -349,7 +349,7 @@ def create_sentence_aligned_data(alignments):
 
 if __name__ == '__main__':
     # prepare_synthetic_data()
-    with open('/Users/ronanlb/ai2/euclid/workspace/euclid/data/private/WebQuestions_semantics.json',
+    with open('../data/WebQuestions_semantics.json',
               'r') as f:
         data = json.load(f)
 
