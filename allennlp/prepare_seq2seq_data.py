@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 import spacy
 import itertools
 
-from type_checking import valid_next_characters, update_state, \
+from allennlp.type_checking import valid_next_characters, update_state, \
     START_SYMBOL, END_SYMBOL
 
 nlp = spacy.load('en')
@@ -356,6 +356,6 @@ if __name__ == '__main__':
 #        additional_data = json.load(f)
 
  #   all_train_subsets = create_sentence_aligned_data(data[:-100])
-    write_data(data[:-800], 'sigmadolphin_train.txt', randomize=True, num_iters=3)
-    write_data(data[-800:], 'sigmadolphin_dev.txt', randomize=False, num_iters=1)
-    write_data(data[-800:], 'sigmadolphin_test.txt', randomize=True, num_iters=1)
+    write_data(data[:-800], 'train.txt', randomize=True, num_iters=3)
+    write_data(data[-800:], 'dev.txt', randomize=False, num_iters=1)
+    write_data(data[-800:], 'test.txt', randomize=True, num_iters=1)
