@@ -356,6 +356,6 @@ if __name__ == '__main__':
 #        additional_data = json.load(f)
 
  #   all_train_subsets = create_sentence_aligned_data(data[:-100])
-    write_data(data[:-700], 'sigmadolphin_train.txt', randomize=True, num_iters=3)
-    write_data(data[-700:], 'sigmadolphin_dev.txt', randomize=False, num_iters=1)
-    write_data(data[-700:], 'sigmadolphin_test.txt', randomize=True, num_iters=1)
+    write_data(data[:-800], 'sigmadolphin_train.txt', randomize=True, num_iters=3)
+    write_data(data[-800:], 'sigmadolphin_dev.txt', randomize=False, num_iters=1)
+    write_data(data[-800:], 'sigmadolphin_test.txt', randomize=True, num_iters=1)
