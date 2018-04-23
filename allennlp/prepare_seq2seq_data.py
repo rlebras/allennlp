@@ -256,6 +256,7 @@ def write_data(data, file_name, num_iters, randomize, silent=True):
                 original_units.extend(type_assignments.keys())
                 lines.append(source + '\t' + target)
                 number_to_tokens.append(number_to_token)
+                question_numbers.append(str(question_number))
             except:
                 if not silent:
                     print(question)
