@@ -461,6 +461,7 @@ class SimpleCopy(Model):
         This method trims the output predictions to the first end symbol, replaces indices with
         corresponding tokens, and adds a field called ``predicted_tokens`` to the ``output_dict``.
         """
+        print('here!')
         predicted_indices = output_dict["predictions"]
         if not isinstance(predicted_indices, numpy.ndarray):
             predicted_indices = predicted_indices.data.cpu().numpy()

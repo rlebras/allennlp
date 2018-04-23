@@ -86,36 +86,18 @@ def is_num(string):
         return None
 
 
-def standardize_question(text, randomize, inject_numbers=False):
+def standardize_question(text):
     source = text.replace('-', ' ')
     source_tokenized = [token.text for token in nlp(source)]
-    if inject_numbers:
-        noised = []
-        count = 0
-        for token in source_tokenized:
-            if count < 1 and random.random() < 0.01 and is_num(token) is None:
-                noised.append(str(1000 * random.random()))
-                count += 1
-            noised.append(token)
-        source_tokenized = noised
-    number_to_token = {}
-    tokens = ['num' + str(i) for i in range(10)]
-    if randomize:
-        random.shuffle(tokens)
-    for index in range(len(source_tokenized)):
-        number = is_num(source_tokenized[index])
+    number_to_tokens = defaultdict(list)
+    for index, token in enumerate(source_tokenized):
+        number = is_num(token)
         if number is not None:
-            if index + 1 < len(source_tokenized) and source_tokenized[index + 1] == '%' or \
-                            source_tokenized[index + 1] == 'percent':
-                number /= 100.0
-            number = round(number, PRECISION)
-            if number not in number_to_token:
-                number_to_token[number] = tokens.pop(0)
-            source_tokenized[index] = number_to_token[number]
-    return ' '.join(source_tokenized), number_to_token
+            number_to_tokens[number].append('num' + str(index))
+    return ' '.join(source_tokenized), number_to_tokens
 
 
-def standardize_logical_form_with_validation(text, number_to_token, randomize):
+def standardize_logical_form_with_validation(text, number_to_tokens, randomize):
     remaining_variable_names = ['var' + str(i) for i in range(10)]
     remaining_units = ['unit' + str(i) for i in range(2)]
     if randomize:
@@ -145,11 +127,12 @@ def standardize_logical_form_with_validation(text, number_to_token, randomize):
         elif is_strict_num(token):
             assert 'NUMBER' in valid_tokens
             number = is_num(token)
-            if number in number_to_token:
-                token = number_to_token[number]
+            if number in number_to_tokens:
+                tokens = number_to_tokens[number]
+                token = random.choice(tokens)
             else:
                 raise RuntimeError(
-                    'Number {} not in number_to_token {}.'.format(number, number_to_token))
+                    'Number {} not in number_to_token {}.'.format(number, number_to_tokens))
         elif token == '?':
             pass
         elif 'TYPE' in valid_tokens:
@@ -264,9 +247,7 @@ def write_data(data, file_name, num_iters, randomize, silent=True):
                 continue
             # if question['iIndex'] != '6226':
             #     continue
-            source, number_to_token = standardize_question(question['sQuestion'],
-                                                           randomize=randomize,
-                                                           inject_numbers=randomize)
+            source, number_to_token = standardize_question(question['sQuestion'])
             try:
                 target, (_, type_assignments) = standardize_logical_form_with_validation(
                     question['lSemantics'],
@@ -290,22 +271,12 @@ def write_data(data, file_name, num_iters, randomize, silent=True):
     print('-' * 70)
     with open(file_name, 'w') as f:
         f.write('\n'.join(lines))
-
         strs = []
     for line in lines:
         strs.append(json.dumps({'source': line.split('\t')[0]}))
 
     with open(file_name[:-4] + '.json', 'w') as f:
         f.write('\n'.join(strs))
-
-    result_str = ''
-    for number_to_token in number_to_tokens:
-        for number, token in number_to_token.items():
-            result_str += token + ' ' + str(number) + '\n'
-        result_str += '***\n'
-
-    with open(file_name[:-4] + '.mapping', 'w') as f:
-        f.write(result_str)
 
     with open(file_name[:-4] + '.question_numbers', 'w') as f:
         f.write('\n'.join(question_numbers))
@@ -377,15 +348,15 @@ def create_sentence_aligned_data(alignments):
 
 
 if __name__ == '__main__':
-    prepare_synthetic_data()
-    # with open('/Users/vidurj/euclid/data/private/third_party/alg514/alg514_alignments.json',
-    #           'r') as f:
-    #     data = json.load(f)
-    #
-    # with open('allennlp/additional_annotations.json', 'r') as f:
-    #     additional_data = json.load(f)
-    #
-    # all_train_subsets = create_sentence_aligned_data(data[:-100])
-    # write_data(all_train_subsets + data[:-100], 'train.txt', randomize=True, num_iters=3)
-    # write_data(data[-100:], 'dev.txt', randomize=False, num_iters=1)
-    # write_data(data[-100:], 'test.txt', randomize=True, num_iters=1)
+    # prepare_synthetic_data()
+    with open('/Users/vidurj/euclid/data/private/third_party/alg514/alg514_alignments.json',
+              'r') as f:
+        data = json.load(f)
+
+    with open('allennlp/additional_annotations.json', 'r') as f:
+        additional_data = json.load(f)
+
+    all_train_subsets = create_sentence_aligned_data(data[:-100])
+    write_data(all_train_subsets + data[:-100], 'train.txt', randomize=True, num_iters=3)
+    write_data(data[-100:], 'dev.txt', randomize=False, num_iters=1)
+    write_data(data[-100:], 'test.txt', randomize=True, num_iters=1)
