@@ -349,8 +349,7 @@ def create_sentence_aligned_data(alignments):
 
 if __name__ == '__main__':
     # prepare_synthetic_data()
-    with open('../data/WebQuestions_semantics.json',
-              'r') as f:
+    with open('../data/WebQuestions_semantics.json', 'r') as f:
         data = json.load(f)
 
 #    with open('allennlp/additional_annotations.json', 'r') as f:
