@@ -13,11 +13,14 @@ from allennlp.common import Params
 from allennlp.data.dataset_readers.seq2seq import START_SYMBOL, END_SYMBOL
 from allennlp.data.vocabulary import Vocabulary
 from allennlp.models.model import Model
+from allennlp.common.util import START_SYMBOL, END_SYMBOL
+from allennlp.data.vocabulary import Vocabulary
 from allennlp.modules import Attention, TextFieldEmbedder, Seq2SeqEncoder
 from allennlp.modules.similarity_functions import SimilarityFunction
 from allennlp.modules.token_embedders import Embedding
 from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_logits, weighted_sum
 from allennlp.type_checking import valid_next_characters, update_state
+from allennlp.training.metrics.categorical_accuracy import CategoricalAccuracy
 
 """
 And (bool, ...) : bool
@@ -100,6 +103,7 @@ class SimpleSeq2Seq(Model):
         # end symbol as a way to indicate the end of the decoded sequence.
         self._start_index = self.vocab.get_token_index(START_SYMBOL, self._target_namespace)
         self._end_index = self.vocab.get_token_index(END_SYMBOL, self._target_namespace)
+        assert self._start_index != self._end_index
         num_classes = self.vocab.get_vocab_size(self._target_namespace)
         self.num_classes = num_classes
         # Decoder output dim needs to be the same as the encoder output dim since we initialize the
@@ -189,7 +193,7 @@ class SimpleSeq2Seq(Model):
                 decoder_hidden, decoder_context = self._decoder_cell(decoder_input,
                                                                      (decoder_hidden,
                                                                       decoder_context))
-                output_projections = self._output_projection_layer(decoder_hidden)
+                output_projections = 0.7 * self._output_projection_layer(decoder_hidden)
                 class_log_probabilities = \
                 F.log_softmax(output_projections, dim=-1).data.cpu().numpy()[0]
                 assert self.vocab.get_vocab_size(self._target_namespace) == len(
@@ -226,14 +230,15 @@ class SimpleSeq2Seq(Model):
                         'arg_numbers': arg_numbers
                     }
                     new_models.append(new_model)
+            assert len(new_models) > 0
             new_models.sort(key=lambda x: - x['cur_log_probability'])
             models = new_models[:bestk]
 
-        complete_models = [model for model in models if model['action_list'][-1] == END_SYMBOL]
-        complete_models.sort(key=lambda x: - x['cur_log_probability'])
+
+        # complete_models = [model for model in models if model['action_list'][-1] == END_SYMBOL]
+        models.sort(key=lambda x: - x['cur_log_probability'])
         # print('total models', len(models), 'len complete models', len(complete_models))
-        output = '\n'.join([' '.join(model['action_list'][1:-1]) for model in complete_models]) + \
-                 '\n***\n'
+        output = '\n'.join([' '.join(model['action_list'][1:-1]) for model in models])
         # print(' '.join(complete_models[0]['action_list'][1:-1]))
         return output
 
@@ -276,7 +281,7 @@ class SimpleSeq2Seq(Model):
         step_probabilities = []
         step_predictions = []
         for timestep in range(num_decoding_steps):
-            if self.training and all(torch.rand(1) >= self._scheduled_sampling_ratio):
+            if self.training or target_tokens:
                 input_choices = targets[:, timestep]
             else:
                 if timestep == 0:
@@ -313,6 +318,8 @@ class SimpleSeq2Seq(Model):
             target_mask = get_text_field_mask(target_tokens)
             loss = self._get_loss(logits, targets, target_mask)
             output_dict["loss"] = loss
+            print('loss', loss)
+            # print(CategoricalAccuracy(all_predictions, targets, target_mask).get_metric())
             # TODO: Define metrics
             # if random.random() < 0.01:
             #     print('\naccuracy',

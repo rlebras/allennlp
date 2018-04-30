@@ -4,8 +4,9 @@ import logging
 from overrides import overrides
 
 from allennlp.common import Params
-from allennlp.common.file_utils import cached_path
 from allennlp.common.checks import ConfigurationError
+from allennlp.common.file_utils import cached_path
+from allennlp.common.util import START_SYMBOL, END_SYMBOL
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.fields import TextField
 from allennlp.data.instance import Instance
@@ -17,8 +18,6 @@ import random
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
-START_SYMBOL = "@@START@@"
-END_SYMBOL = "@@END@@"
 
 
 @DatasetReader.register("seq2seq")
@@ -90,32 +89,38 @@ class Seq2SeqDatasetReader(DatasetReader):
                          target_string: str = None) -> Instance:  # type: ignore
         # pylint: disable=arguments-differ
         tokenized_source = self._source_tokenizer.tokenize(source_string)
-        stem_to_index = {}
         assert self._source_add_start_token
-        stemmed_source = [Token(START_SYMBOL)]
-        for token in tokenized_source:
-            stemmed_text = self._stemmer.stem_word(token).text
-            if stemmed_text not in stem_to_index:
-                # if len(stem_to_index) > 250:
-                #     index = random.randint(0, 250)
-                # else:
-                index = len(stem_to_index)
-                stem_to_index[stemmed_text] = str(index)
-            stemmed_source.append(Token(stem_to_index[stemmed_text]))
-        stemmed_source.append(Token(END_SYMBOL))
+
         if self._source_add_start_token:
             tokenized_source.insert(0, Token(START_SYMBOL))
         tokenized_source.append(Token(END_SYMBOL))
         source_field = TextField(tokenized_source, self._source_token_indexers)
-        stem_field = TextField(stemmed_source, {"tokens": TrivialTokenIndexer()})
+
+        tag_to_field = {"source_tokens": source_field}
         if target_string is not None:
             tokenized_target = self._target_tokenizer.tokenize(target_string)
             tokenized_target.insert(0, Token(START_SYMBOL))
             tokenized_target.append(Token(END_SYMBOL))
             target_field = TextField(tokenized_target, self._target_token_indexers)
-            return Instance({"source_tokens": source_field, "stem_tokens": stem_field, "target_tokens": target_field})
-        else:
-            return Instance({'source_tokens': source_field, "stem_tokens": stem_field})
+            tag_to_field["target_tokens"] = target_field
+
+        if False:
+            stem_to_index = {}
+            stemmed_source = [Token(START_SYMBOL)]
+            for token in tokenized_source:
+                stemmed_text = self._stemmer.stem_word(token).text
+                if stemmed_text not in stem_to_index:
+                    # if len(stem_to_index) > 250:
+                    #     index = random.randint(0, 250)
+                    # else:
+                    index = len(stem_to_index)
+                    stem_to_index[stemmed_text] = str(index)
+                stemmed_source.append(Token(stem_to_index[stemmed_text]))
+            stemmed_source.append(Token(END_SYMBOL))
+            stem_field = TextField(stemmed_source, {"tokens": TrivialTokenIndexer()})
+            tag_to_field["stem_tokens"] = stem_field
+
+        return Instance(tag_to_field)
 
     @classmethod
     def from_params(cls, params: Params) -> 'Seq2SeqDatasetReader':

@@ -92,6 +92,9 @@ def standardize_question(text):
     number_to_tokens = defaultdict(list)
     for index, token in enumerate(source_tokenized):
         number = is_num(token)
+        if number is not None and (source_tokenized[index + 1] == '%' or source_tokenized[index + 1] == 'percent'):
+            number /= 100
+            number = round(number, PRECISION)
         if number is not None:
             number_to_tokens[number].append('num' + str(index))
     return ' '.join(source_tokenized), number_to_tokens
@@ -324,7 +327,8 @@ def create_sentence_aligned_data(alignments):
     print(key_to_sentence.keys())
     for q_index, semantics in question_to_sentence_semantics.items():
         valid = [(i, l) for i, l in enumerate(semantics) if len(l) > 0]
-        for size in range(1, len(valid)):
+        # TODO picking single sentence or all sentences
+        for size in [1]:
             for sequence in itertools.combinations(valid, size):
                 sequence = list(sequence)
                 sequence.sort(key=lambda x: x[0])
@@ -350,7 +354,7 @@ def create_sentence_aligned_data(alignments):
 
 if __name__ == '__main__':
     # prepare_synthetic_data()
-    with open('../data/WebQuestions_semantics.json', 'r') as f:
+    with open('../data/WebQuestionsDraw_semantics.json', 'r') as f:
         data = json.load(f)
 
 #    with open('allennlp/additional_annotations.json', 'r') as f:
@@ -360,3 +364,13 @@ if __name__ == '__main__':
     write_data(data[:-800], 'train.txt', randomize=True, num_iters=3)
     write_data(data[-800:], 'dev.txt', randomize=False, num_iters=1)
     write_data(data[-800:], 'test.txt', randomize=True, num_iters=1)
+
+#    with open('allennlp/additional_annotations.json', 'r') as f:
+#        additional_data = json.load(f)
+#    all_train_subsets = create_sentence_aligned_data(data[:-100])
+#    write_data(data[:-100], 'train.txt', randomize=True, num_iters=1)
+    # write_data(data[-100:], 'dev.txt', randomize=False, num_iters=1, silent=True)
+    # write_data(data[-100:], 'test.txt', randomize=True, num_iters=1)
+
+    # write_data(data[:3], 'train.txt', randomize=True, num_iters=500)
+    # write_data(data[:3], 'dev.txt', randomize=True, num_iters=5)

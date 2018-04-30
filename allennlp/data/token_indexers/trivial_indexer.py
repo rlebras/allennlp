@@ -44,9 +44,9 @@ class TrivialTokenIndexer(TokenIndexer[int]):
             # this id instead.
             return token.text_id
         else:
-            if token.text == "@@START@@":
+            if token.text == "@start@":
                 return 1
-            elif token.text == "@@END@@":
+            elif token.text == "@end@":
                 return 2
             else:
                 return int(token.text) + 3

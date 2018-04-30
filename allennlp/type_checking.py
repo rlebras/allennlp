@@ -1,6 +1,6 @@
 
-START_SYMBOL = "@@START@@"
-END_SYMBOL = "@@END@@"
+START_SYMBOL = "@start@"
+END_SYMBOL = "@end@"
 
 
 def valid_next_characters(function_calls, arg_numbers, last_token, valid_numbers, valid_variables,

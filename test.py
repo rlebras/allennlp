@@ -101,8 +101,9 @@ def optimize(f, g, lr=2):
         cur = [x - lr * y for x, y in zip(cur, grad)]
 
 
-optimize(f, grad)
-
+# optimize(f, grad)
+a = ['The', 'sum', 'of', '0.75', 'of', 'a', 'number', 'and', 'two', 'is', 'eight', '.', 'Find', 'the', 'number', '.']
+print(' '.join(a))
 
 
 

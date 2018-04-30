@@ -114,7 +114,6 @@ class SimpleTrainer:
 
 @Predictor.register('simple_seq2seq_beam')
 class SimpleSeq2SeqPredictorBeam(Predictor):
-    bestk = 200
     """
     Wrapper for the :class:`~allennlp.models.encoder_decoder.simple_seq2seq` model.
     """
@@ -134,19 +133,67 @@ class SimpleSeq2SeqPredictorBeam(Predictor):
         dataset = Batch([instance])
         dataset.index_instances(self._model.vocab)
         model_input = dataset.as_tensor_dict(cuda_device=cuda_device, for_training=False)
-        output = self._model.beam_search(model_input['source_tokens'], bestk=200)
+        output = self._model.beam_search(model_input['source_tokens'], bestk=3)
         return output
 
     @overrides
     def predict_batch_json(self, inputs: List[JsonDict], cuda_device: int = -1) -> List[JsonDict]:
-        instances, return_dicts = zip(*self._batch_json_to_instances(inputs))
-        output_string = ''
-        for instance in instances:
-            instance_output = self._model.beam_search(instance.fields['source_tokens'].as_array(),
-                                                      bestk=200)
-            output_string += instance_output
-        return output_string
+        raise Exception('Unimplemented')
 
+
+
+@Predictor.register('simple_seq2seq_beam_copy')
+class SimpleSeq2SeqPredictorBeamCopy(Predictor):
+    bestk = 20
+    """
+    Wrapper for the :class:`~allennlp.models.encoder_decoder.simple_seq2seq` model.
+    """
+
+    @overrides
+    def _json_to_instance(self, json_dict: JsonDict) -> Tuple[Instance, JsonDict]:
+        """
+        Expects JSON that looks like ``{"source": "..."}``.
+        """
+        source = json_dict["source"]
+        return self._dataset_reader.text_to_instance(source), {}
+
+    @overrides
+    def predict_json(self, inputs: JsonDict, cuda_device: int = -1) -> JsonDict:
+        instance, return_dict = self._json_to_instance(inputs)
+
+        dataset = Batch([instance])
+        dataset.index_instances(self._model.vocab)
+        model_input = dataset.as_tensor_dict(cuda_device=cuda_device, for_training=False)
+        if 'stem_tokens' in model_input:
+            output = self._model.beam_search(model_input['source_tokens'],
+                                             stem_tokens=model_input['stem_tokens'],
+                                             bestk=3)
+        else:
+            output = self._model.beam_search(model_input['source_tokens'], bestk=3)
+
+        input_tokens = inputs['source'].split()
+        print('num input tokens', len(input_tokens))
+        lines = output.splitlines()
+        new_lines = []
+        for line in lines:
+            new_tokens = []
+            for token in line.split():
+                if token.startswith('index'):
+                    index = int(token[5:])
+                    if len(input_tokens) <= index:
+                        print(index, len(input_tokens))
+                    possible_number = is_num(input_tokens[index])
+                    if possible_number is not None:
+                        token = str(possible_number)
+                new_tokens.append(token)
+            new_line = ' '.join(new_tokens)
+            new_lines.append(new_line)
+        output = '\n'.join(new_lines)
+        return output
+
+    @overrides
+    def predict_batch_json(self, inputs: List[JsonDict], cuda_device: int = -1) -> List[JsonDict]:
+        raise Exception('Unimplemented')
 
 def instance_to_source_string(instance, token_to_number_str):
     tokens = [token.text for token in instance.fields['source_tokens'].tokens]
@@ -203,7 +250,7 @@ class Interpreter(cmd.Cmd):
 
     def do_solve(self, text):
         self._model.eval()
-        source, number_to_token = standardize_question(text, randomize=False)
+        source, number_to_token = standardize_question(text)
         instance = self._dataset_reader.text_to_instance(source)
         batch = instances_to_batch([instance], self._model, for_training=False)
         predictions = self._model.beam_search(batch['source_tokens'], bestk=1)
@@ -214,7 +261,7 @@ class Interpreter(cmd.Cmd):
 
     def do_add_instance(self, line):
         source, target = line.split('\t')
-        source, number_to_token = standardize_question(source, randomize=True)
+        source, number_to_token = standardize_question(source)
         target = self.parse_target(target, number_to_token)
         if target is not None:
             labeled_instance = self._dataset_reader.text_to_instance(source, target)
@@ -337,4 +384,5 @@ class SimpleSeq2SeqPredictor(Predictor):
         Expects JSON that looks like ``{"source": "..."}``.
         """
         source = json_dict["source"]
+        print(source)
         return self._dataset_reader.text_to_instance(source), {}

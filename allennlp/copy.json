@@ -2,6 +2,10 @@
   "dataset_reader": {
     "type": "seq2seq",
     "source_token_indexers": {
+      "tokens": {
+       "namespace": "source_tokens",
+       "type": "single_id"
+     },
      "source_elmo": {
        "namespace": "source_elmo",
        "type": "elmo_characters"
@@ -19,8 +23,15 @@
   "test_data_path": "test.txt",
   "model": {
     "type": "simple_copy",
-    "max_decoding_steps": 3,
+    "max_decoding_steps": 150,
     "source_embedder": {
+      "tokens": {
+        "vocab_namespace": "source_tokens",
+        "type": "embedding",
+        "pretrained_file": "https://s3-us-west-2.amazonaws.com/allennlp/datasets/glove/glove.6B.100d.txt.gz",
+        "embedding_dim": 100,
+        "trainable": true
+      },
       "source_elmo":{
        "type": "elmo_token_embedder",
        "options_file": "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json",
@@ -32,7 +43,7 @@
     "target_embedding_dim": 100,
     "encoder": {
       "type": "lstm",
-      "input_size": 1074,
+      "input_size": 1124,
       "hidden_size": 250,
       "num_layers": 2,
       "bidirectional": true,
@@ -44,10 +55,11 @@
     "iterator": {
       "type": "bucket",
       "sorting_keys": [["source_tokens", "num_tokens"], ["target_tokens", "num_tokens"]],
-      "batch_size" : 100
+      "batch_size" : 150
     },
     "trainer": {
       "num_serialized_models_to_keep": 2,
+      "keep_serialized_model_every_num_seconds": 900,
       "num_epochs": 100,
       "grad_norm": 5.0,
       "patience": 100,
