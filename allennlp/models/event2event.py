@@ -166,7 +166,7 @@ class Event2Event(Model):
             for name, state in self._states.items():
                 targets = target_tokens[name]["tokens"]
                 target_sequence_length = targets.size()[1]
-                if target_sequence_length == 0:
+                if target_sequence_length > 0:
                     loss = self.greedy_search(
                             final_encoder_output,
                             target_tokens[name],
