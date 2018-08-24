@@ -178,7 +178,10 @@ class Event2Event(Model):
                 output_dict["{}_loss".format(name)] = loss
 
             # Average loss for interpretability.
-            output_dict["loss"] = total_loss / len(self._states)
+            if loss_count == 0:
+                output_dict["loss"] = 1.0
+            else:
+                output_dict["loss"] = total_loss / loss_count
 
         # Perform beam search to obtain the predictions.
         if not self.training:
