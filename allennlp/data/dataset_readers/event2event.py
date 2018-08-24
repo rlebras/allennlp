@@ -91,10 +91,7 @@ class Event2EventDatasetReader(DatasetReader):
                         targets_dict[field] = json.loads(line_parts[i + 1])
                         targets.append(json.loads(line_parts[i + 1]))
 
-                #TODO: use itertools.product instead!
-                print("Target is ", targets)
-                for vals in itertools.product(targets):
-                    print("What is that:", vals)
+                for vals in itertools.product(*targets):
                     target_dict = {}
                     for j in target_indices:
                         target_dict[target_fields[j]] = vals[j]
