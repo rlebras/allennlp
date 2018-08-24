@@ -162,14 +162,19 @@ class Event2Event(Model):
                 raise Exception("Mismatch between target_tokens and self._states. Keys in " +
                         "targets only: {} Keys in states only: {}".format(target_only, states_only))
             total_loss = 0
+            loss_count = 0
             for name, state in self._states.items():
-                loss = self.greedy_search(
-                        final_encoder_output,
-                        target_tokens[name],
-                        state._embedder,
-                        state._decoder_cell,
-                        state._output_projection_layer)
-                total_loss += loss
+                if target_tokens[name]["tokens"]:
+                    loss = self.greedy_search(
+                            final_encoder_output,
+                            target_tokens[name],
+                            state._embedder,
+                            state._decoder_cell,
+                            state._output_projection_layer)
+                    total_loss += loss
+                    loss_count = loss_count + 1
+                else:
+                    loss = 1
                 output_dict["{}_loss".format(name)] = loss
 
             # Average loss for interpretability.
