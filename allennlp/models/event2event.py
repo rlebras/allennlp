@@ -73,12 +73,15 @@ class Event2Event(Model):
         target_embedding_dim = target_embedding_dim or self._source_embedder.get_output_dim()
 
         state_names = [
-            'xNeed',
-            'xWant',
-            'oWant',
-            'xEffect',
             'oEffect',
-            'xAttr'
+            'oReact',
+            'oWant',
+            'xAttr',
+            'xEffect',
+            'xIntent',
+            'xNeed',
+            'xReact',
+            'xWant'
         ]
 
         self._states: Dict[str, Event2Event.StateDecoder] = {}

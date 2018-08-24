@@ -14,6 +14,7 @@ from allennlp.data.instance import Instance
 from allennlp.data.tokenizers import Token, Tokenizer, WordTokenizer
 from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
 from allennlp.data.vocabulary import DEFAULT_PADDING_TOKEN
+import itertools
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
@@ -63,6 +64,9 @@ class Event2EventDatasetReader(DatasetReader):
 
     @overrides
     def _read(self, file_path):
+
+        target_fields = ["oEffect", "oReact", "oWant", "xAttr", "xEffect", "xIntent", "xNeed", "xReact", "xWant"]
+
         with open(cached_path(file_path), "r") as data_file:
             logger.info("Reading instances from lines in file at: %s", file_path)
             reader = csv.reader(data_file)
@@ -70,36 +74,31 @@ class Event2EventDatasetReader(DatasetReader):
             reader.__next__()
 
             for (line_num, line_parts) in enumerate(reader):
-                if len(line_parts) != 7:
+                if len(line_parts) != len(target_fields)+1:
                     line = ','.join([str(s) for s in line_parts])
                     raise ConfigurationError("Invalid line format: %s (line number %d)" % (line, line_num + 1))
                 source_sequence = line_parts[0]
-                # ['event', 'xNeed', 'xWant', 'oWant', 'xEffect', 'oEffect', 'xAttr']
-                target_fields = ['xNeed', 'xWant', 'oWant', 'xEffect', 'oEffect', 'xAttr']
+                # ["oEffect", "oReact", "oWant", "xAttr" , "xEffect", "xIntent", "xNeed", "xReact", "xWant"]
                 target_indices = range(0, len(target_fields))
                 targets_dict = {}
+                targets = []
                 for i in target_indices:
                     field = target_fields[i]
-                    if line_parts[i + 1] == None or line_parts[i + 1] == DEFAULT_PADDING_TOKEN or line_parts[i + 1] == "":
-                        targets_dict[field] = ["DEFAULT_PADDING_TOKEN"]
+                    if line_parts[i + 1] == None or line_parts[i + 1] == "[]":
+                        targets_dict[field] = [""]
+                        targets.append([""])
                     else:
-                        if line_parts[i + 1] == "[]":
-                            targets_dict[field] = ["none"]
-                        else:
-                            targets_dict[field] = json.loads(line_parts[i + 1])
+                        targets_dict[field] = json.loads(line_parts[i + 1])
+                        targets.append(json.loads(line_parts[i + 1]))
 
                 #TODO: use itertools.product instead!
-                for x0 in targets_dict[target_fields[0]]:
-                    for x1 in targets_dict[target_fields[1]]:
-                        for x2 in targets_dict[target_fields[2]]:
-                            for x3 in targets_dict[target_fields[3]]:
-                                for x4 in targets_dict[target_fields[4]]:
-                                    for x5 in targets_dict[target_fields[5]]:
-                                        vals = [x0, x1, x2, x3, x4, x5]
-                                        target_dict = {}
-                                        for j in target_indices:
-                                            target_dict[target_fields[j]] = vals[i]
-                                        yield self.text_to_instance(source_sequence, target_dict)
+                print("Target is ", targets)
+                for vals in itertools.product(targets):
+                    print("What is that:", vals)
+                    target_dict = {}
+                    for j in target_indices:
+                        target_dict[target_fields[j]] = vals[j]
+                    yield self.text_to_instance(source_sequence, target_dict)
 
     """
     See https://github.com/maartensap/event2mind-internal/blob/master/code/modeling/utils/preprocess.py#L80.
