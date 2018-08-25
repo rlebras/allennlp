@@ -232,7 +232,8 @@ class Event2Event(Model):
 
     # Returns the loss.
     def greedy_search(self, final_encoder_output, target_tokens, target_embedder,
-                      decoder_cell, output_projection_layer, early_fusion=None):
+                      decoder_cell, output_projection_layer, early_fusion=None,
+                      batch_average_loss=True):
         targets = target_tokens["tokens"]
         target_sequence_length = targets.size()[1]
         # The last input from the target is either padding or the end symbol. Either way, we
@@ -262,7 +263,7 @@ class Event2Event(Model):
         # (batch_size, num_decoding_steps, num_classes)
         logits = torch.cat(step_logits, 1)
         target_mask = get_text_field_mask(target_tokens)
-        return self._get_loss(logits, targets, target_mask)
+        return self._get_loss(logits, targets, target_mask, batch_average=batch_average_loss)
 
     def beam_search(self,
                     final_encoder_output: torch.LongTensor,
@@ -390,7 +391,8 @@ class Event2Event(Model):
     @staticmethod
     def _get_loss(logits: torch.LongTensor,
                   targets: torch.LongTensor,
-                  target_mask: torch.LongTensor) -> torch.LongTensor:
+                  target_mask: torch.LongTensor,
+                  batch_average: bool = True) -> torch.LongTensor:
         """
         Takes logits (unnormalized outputs from the decoder) of size (batch_size,
         num_decoding_steps, num_classes), target indices of size (batch_size, num_decoding_steps+1)
@@ -416,7 +418,9 @@ class Event2Event(Model):
         """
         relevant_targets = targets[:, 1:].contiguous()  # (batch_size, num_decoding_steps)
         relevant_mask = target_mask[:, 1:].contiguous()  # (batch_size, num_decoding_steps)
-        loss = sequence_cross_entropy_with_logits(logits, relevant_targets, relevant_mask)
+        loss = sequence_cross_entropy_with_logits(
+            logits, relevant_targets, relevant_mask,
+            batch_average=batch_average)
         return loss
 
     def decode_all(self, predicted_indices: torch.Tensor):
@@ -537,6 +541,20 @@ class Event2Event_wDimGroups(Event2Event):
         #             self._decoder_output_dim
         #     )
 
+    def _assign_dim_losses(self,dim_array,loss_array):
+        dims = dim_array.argmax(dim=1)
+        dim_names = ["oEffect", "oReact", "oWant", "xAttr", "xEffect",
+                     "xIntent", "xNeed", "xReact", "xWant"]
+        loss_assign = [dim_names[i] for i in dims]
+        loss_dict = {n: 0 for n in dim_names}
+        count_dict = {n: 0 for n in dim_names}
+        for n,l in zip(loss_assign,loss_array):
+            loss_dict[n] += l
+            count_dict[n] += 1
+        loss_dict = {n: v/count_dict[n] if count_dict[n] else 0 for n,v in loss_dict.items()}
+        return loss_dict
+        
+                           
     @overrides
     def forward(self,  # type: ignore
                 source: Dict[str, torch.LongTensor],
@@ -583,14 +601,19 @@ class Event2Event_wDimGroups(Event2Event):
                     self.state_decoder._embedder,
                     self.state_decoder._decoder_cell,
                     self.state_decoder._output_projection_layer,
-                    early_fusion=dim_arr
+                    early_fusion=dim_arr,
+                    batch_average_loss=False
                 )
-                total_loss += loss
+                loss_dict = self._assign_dim_losses(dim_arr,loss)
+                
+                loss = loss.mean()
+                total_loss += loss.mean()
                 loss_count = loss_count + 1
-            else:
-                loss = 1
-            output_dict["{}_loss".format("")] = loss
-
+                output_dict["loss_sum"] = loss.mean()
+                output_dict.update({
+                    n+"_loss":v for n,v in loss_dict.items()
+                })
+            
             # Average loss for interpretability.
             if loss_count == 0:
                 output_dict["loss"] = 1.0
@@ -613,7 +636,13 @@ class Event2Event_wDimGroups(Event2Event):
                 early_fusion=target_tokens["dim"]
             )
             if target_tokens:
-                self._update_recall(all_top_k_predictions, target_tokens["target_seq"], self.state_decoder._recall)
+                # TODO(maarten) Need to update recall for each dim separately?
+                # similar to how self._assing_dim_losses did but for
+                # unigram recall
+                self._update_recall(all_top_k_predictions,
+                                    target_tokens["target_seq"],
+                                    self.state_decoder._recall)
+            # ip_embed();exit()
             output_dict["{}_top_k_predictions".format("")] = all_top_k_predictions
             output_dict["{}_top_k_log_probabilities".format("")] = log_probabilities
 
@@ -624,6 +653,6 @@ class Event2Event_wDimGroups(Event2Event):
         all_metrics = {}
         # Recall@10 needs beam search which doesn't happen during training.
         if not self.training:
-            
+            ip_embed();exit()
             all_metrics["target_seq"] = self.state_decoder._recall.get_metric(reset=reset)
         return all_metrics
