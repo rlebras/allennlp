@@ -57,8 +57,8 @@
     "sorting_keys": [["source", "num_tokens"]]
   },
   "trainer": {
-    "num_epochs": 60,
-    "patience": 30,
+    "num_epochs": 40,
+    "patience": 10,
     "cuda_device": 0,
     "optimizer": {
       "type": "adam"
