@@ -3,6 +3,8 @@ from typing import Dict, Tuple
 import numpy
 from overrides import overrides
 
+from IPython import embed as ip_embed
+
 import torch
 from torch.nn.modules.rnn import GRUCell, LSTMCell
 from torch.nn.modules.linear import Linear
@@ -17,6 +19,28 @@ from allennlp.modules.token_embedders import Embedding
 from allennlp.models.model import Model
 from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_logits, weighted_sum
 from allennlp.training.metrics import UnigramRecall
+
+class StateDecoder:
+    def __init__(self, name, event2event, num_classes, input_dim, output_dim):
+        self._embedder = Embedding(num_classes, input_dim)
+        event2event.add_module("{}_embedder".format(name), self._embedder)
+        self._decoder_cell = GRUCell(input_dim, output_dim)
+        event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
+        self._output_projection_layer = Linear(output_dim, num_classes)
+        event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
+        self._recall = UnigramRecall()
+        
+class StateDecoderEarlyFusion:
+    """ Input dim of RNN is word_emb_dim + numgroups"""
+    def __init__(self, name, event2event, num_classes, input_dim, ef_dim, output_dim):
+        self._embedder = Embedding(num_classes, input_dim)
+        event2event.add_module("{}_embedder".format(name), self._embedder)
+        self._decoder_cell = GRUCell(input_dim + ef_dim, output_dim)
+        event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
+        self._output_projection_layer = Linear(output_dim, num_classes)
+        event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
+        self._recall = UnigramRecall()
+
 
 @Model.register("event2event")
 class Event2Event(Model):
@@ -86,7 +110,7 @@ class Event2Event(Model):
 
         self._states: Dict[str, Event2Event.StateDecoder] = {}
         for name in state_names:
-            self._states[name] = self.StateDecoder(
+            self._states[name] = StateDecoder(
                     name,
                     self,
                     num_classes,
@@ -94,15 +118,15 @@ class Event2Event(Model):
                     self._decoder_output_dim
             )
 
-    class StateDecoder:
-        def __init__(self, name, event2event, num_classes, input_dim, output_dim):
-            self._embedder = Embedding(num_classes, input_dim)
-            event2event.add_module("{}_embedder".format(name), self._embedder)
-            self._decoder_cell = GRUCell(input_dim, output_dim)
-            event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
-            self._output_projection_layer = Linear(output_dim, num_classes)
-            event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
-            self._recall = UnigramRecall()
+    # class StateDecoder:
+    #     def __init__(self, name, event2event, num_classes, input_dim, output_dim):
+    #         self._embedder = Embedding(num_classes, input_dim)
+    #         event2event.add_module("{}_embedder".format(name), self._embedder)
+    #         self._decoder_cell = GRUCell(input_dim, output_dim)
+    #         event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
+    #         self._output_projection_layer = Linear(output_dim, num_classes)
+    #         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
+    #         self._recall = UnigramRecall()
 
     def _update_recall(self, all_top_k_predictions, target_tokens, target_recall):
         targets = target_tokens["tokens"]
@@ -207,7 +231,8 @@ class Event2Event(Model):
         return output_dict
 
     # Returns the loss.
-    def greedy_search(self, final_encoder_output, target_tokens, target_embedder, decoder_cell, output_projection_layer):
+    def greedy_search(self, final_encoder_output, target_tokens, target_embedder,
+                      decoder_cell, output_projection_layer, early_fusion=None):
         targets = target_tokens["tokens"]
         target_sequence_length = targets.size()[1]
         # The last input from the target is either padding or the end symbol. Either way, we
@@ -225,6 +250,10 @@ class Event2Event(Model):
             # TODO(brendanr): Grok this.
             input_choices = targets[:, timestep]
             decoder_input = target_embedder(input_choices)
+            
+            if not early_fusion is None:
+                decoder_input = torch.cat([decoder_input,early_fusion],dim=1)
+
             decoder_hidden = decoder_cell(decoder_input, decoder_hidden)
             # (batch_size, num_classes)
             output_projections = output_projection_layer(decoder_hidden)
@@ -243,7 +272,8 @@ class Event2Event(Model):
                     source_mask,
                     target_embedder,
                     decoder_cell,
-                    output_projection_layer) -> Tuple[torch.Tensor, torch.Tensor]:
+                    output_projection_layer,
+                    early_fusion=None) -> Tuple[torch.Tensor, torch.Tensor]:
         # List of (batchsize, k) tensors. One for each time step. Does not
         # include the start symbols, which are implicit.
         predictions = []
@@ -261,6 +291,8 @@ class Event2Event(Model):
         # Timestep 1
         start_predictions = source_mask.new_full((batch_size,), fill_value=self._start_index)
         start_decoder_input = target_embedder(start_predictions)
+        if not early_fusion is None:
+            start_decoder_input = torch.cat([start_decoder_input,early_fusion],dim=1)
         start_decoder_hidden = decoder_cell(start_decoder_input, final_encoder_output)
         start_output_projections = output_projection_layer(start_decoder_hidden)
         start_class_log_probabilities = F.log_softmax(start_output_projections, dim=-1)
@@ -289,6 +321,10 @@ class Event2Event(Model):
             # (batch_size * k,)
             last_predictions = predictions[-1].reshape(batch_size * k)
             decoder_input = target_embedder(last_predictions)
+            
+            if not early_fusion is None:
+                decoder_input = torch.cat([decoder_input,torch.cat([early_fusion]*k)],dim=1)
+            
             # reshape(batch_size * k, self._decoder_output_dim)
             decoder_hidden = decoder_cell(decoder_input, decoder_hidden)
             # (batch_size * k, num_classes)
@@ -420,4 +456,174 @@ class Event2Event(Model):
         if not self.training:
             for name, state in self._states.items():
                 all_metrics[name] = state._recall.get_metric(reset=reset)
+        return all_metrics
+
+
+@Model.register("event2event_wDimGroups")
+class Event2Event_wDimGroups(Event2Event):
+    """
+    This ``Event2Event`` class is a :class:`Model` which takes an event
+    sequence, encodes it, and then uses the encoded representation to decode
+    several mental state sequences.
+
+    See: https://www.semanticscholar.org/paper/Event2Mind/b89f8a9b2192a8f2018eead6b135ed30a1f2144d
+
+    Parameters
+    ----------
+    vocab : ``Vocabulary``, required
+        Vocabulary containing source and target vocabularies. They may be under the same namespace
+        (``tokens``) or the target tokens can have a different namespace, in which case it needs to
+        be specified as ``target_namespace``.
+    source_embedder : ``TextFieldEmbedder``, required
+        Embedder for source side sequences
+    encoder : ``Seq2SeqEncoder``, required
+        The encoder of the "encoder/decoder" model
+    max_decoding_steps : int, required
+        Length of decoded sequences
+    target_namespace : str, optional (default = 'tokens')
+        If the target side vocabulary is different from the source side's, you need to specify the
+        target's namespace here. If not, we'll assume it is "tokens", which is also the default
+        choice for the source side, and this might cause them to share vocabularies.
+    target_embedding_dim : int, optional (default = source_embedding_dim)
+        You can specify an embedding dimensionality for the target side. If not, we'll use the same
+        value as the source embedder's.
+    """
+    def __init__(self,
+                 vocab: Vocabulary,
+                 source_embedder: TextFieldEmbedder,
+                 encoder: Seq2SeqEncoder,
+                 num_dim_groups: int,
+                 max_decoding_steps: int,
+                 target_namespace: str = "tokens",
+                 target_embedding_dim: int = None) -> None:
+        super(Event2Event, self).__init__(vocab)
+        # TODO(brendanr): Hack the embeddings here like initWEmb in modeling/utils/preprocess.py?
+        self._source_embedder = source_embedder
+        self._encoder = encoder
+        self._max_decoding_steps = max_decoding_steps
+        self._target_namespace = target_namespace
+        self._embedding_dropout = nn.Dropout(0.2)
+
+        # embedding dim groups
+        self._num_dim_groups = num_dim_groups
+        
+        # We need the start symbol to provide as the input at the first timestep of decoding, and
+        # end symbol as a way to indicate the end of the decoded sequence.
+        self._start_index = self.vocab.get_token_index(START_SYMBOL, self._target_namespace)
+        self._end_index = self.vocab.get_token_index(END_SYMBOL, self._target_namespace)
+        num_classes = self.vocab.get_vocab_size(self._target_namespace)
+        # Decoder output dim needs to be the same as the encoder output dim since we initialize the
+        # hidden state of the decoder with that of the final hidden states of the encoder.
+        self._decoder_output_dim = self._encoder.get_output_dim()
+        target_embedding_dim = target_embedding_dim or self._source_embedder.get_output_dim()
+
+        self.state_decoder = StateDecoderEarlyFusion(
+            "decoder", self, num_classes,
+            target_embedding_dim, num_dim_groups,
+            self._decoder_output_dim
+        )
+        
+        # state_names = [
+        #     self.state_name
+        # ]
+
+        # self._states: Dict[str, Event2Event.StateDecoder] = {}
+        # for name in state_names:
+        #     self._states[name] = self.StateDecoder(
+        #             name,
+        #             self,
+        #             num_classes,
+        #             target_embedding_dim+num_dim_groups,
+        #             self._decoder_output_dim
+        #     )
+
+    @overrides
+    def forward(self,  # type: ignore
+                source: Dict[str, torch.LongTensor],
+                **target_tokens) -> Dict[str, torch.Tensor]:
+        # pylint: disable=arguments-differ
+        """
+        Decoder logic for producing the target sequences.
+
+        Parameters
+        ----------
+        source : Dict[str, torch.LongTensor]
+           The output of ``TextField.as_array()`` applied on the source ``TextField``. This will be
+           passed through a ``TextFieldEmbedder`` and then through an encoder.
+        target_tokens :
+           Dictionary from name to output of ``Textfield.as_array()`` applied on target
+           ``TextField``. We assume that the target tokens are also represented as a ``TextField``.
+        """
+        # (batch_size, input_sequence_length, encoder_output_dim)
+        # TODO(brendanr): Revisit dropout.
+        embedded_input = self._embedding_dropout(self._source_embedder(source))
+        batch_size, _, _ = embedded_input.size()
+        source_mask = get_text_field_mask(source)
+        encoder_outputs = self._encoder(embedded_input, source_mask)
+        final_encoder_output = encoder_outputs[:, -1]  # (batch_size, encoder_output_dim)
+        output_dict = {}
+        
+        # Perform greedy search so we can get the loss.
+        if target_tokens:
+            # if target_tokens.keys() != self._states.keys():
+            #     target_only = target_tokens.keys() - self._states.keys()
+            #     states_only = self._states.keys() - target_tokens.keys()
+            #     raise Exception("Mismatch between target_tokens and self._states. Keys in " +
+            #             "targets only: {} Keys in states only: {}".format(target_only, states_only))
+            total_loss = 0
+            loss_count = 0
+            
+            targets = target_tokens["target_seq"]#["tokens"]
+            dim_arr = target_tokens["dim"]
+            target_sequence_length = targets["tokens"].size()[1]
+            if target_sequence_length != 0:
+                loss = self.greedy_search(
+                    final_encoder_output,
+                    targets,
+                    self.state_decoder._embedder,
+                    self.state_decoder._decoder_cell,
+                    self.state_decoder._output_projection_layer,
+                    early_fusion=dim_arr
+                )
+                total_loss += loss
+                loss_count = loss_count + 1
+            else:
+                loss = 1
+            output_dict["{}_loss".format("")] = loss
+
+            # Average loss for interpretability.
+            if loss_count == 0:
+                output_dict["loss"] = 1.0
+            else:
+                output_dict["loss"] = total_loss / loss_count
+
+        # Perform beam search to obtain the predictions.
+        if not self.training:
+            # for name, state in self._states.items():
+            # (batch_size, k, num_decoding_steps)
+            (all_top_k_predictions, log_probabilities) = self.beam_search(
+                final_encoder_output,
+                10,
+                self._get_num_decoding_steps(target_tokens["target_seq"]),
+                batch_size,
+                source_mask,
+                self.state_decoder._embedder,
+                self.state_decoder._decoder_cell,
+                self.state_decoder._output_projection_layer,
+                early_fusion=target_tokens["dim"]
+            )
+            if target_tokens:
+                self._update_recall(all_top_k_predictions, target_tokens["target_seq"], self.state_decoder._recall)
+            output_dict["{}_top_k_predictions".format("")] = all_top_k_predictions
+            output_dict["{}_top_k_log_probabilities".format("")] = log_probabilities
+
+        return output_dict
+    
+    @overrides
+    def get_metrics(self, reset: bool = False) -> Dict[str, float]:
+        all_metrics = {}
+        # Recall@10 needs beam search which doesn't happen during training.
+        if not self.training:
+            
+            all_metrics["target_seq"] = self.state_decoder._recall.get_metric(reset=reset)
         return all_metrics
