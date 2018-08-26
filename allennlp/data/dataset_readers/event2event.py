@@ -17,6 +17,8 @@ from allennlp.data.vocabulary import DEFAULT_PADDING_TOKEN
 import numpy as np
 import itertools
 
+from IPython import embed as ip_embed
+
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 @DatasetReader.register("event2event")
@@ -146,7 +148,7 @@ class Event2EventDatasetReader(DatasetReader):
     def text_to_instance(
             self,
             source_string: str,
-            target_dict) -> Instance:  # type: ignore
+            target_dict = None) -> Instance:  # type: ignore
         # pylint: disable=arguments-differ
         processed = self._preprocess_string(self._source_tokenizer, source_string)
         tokenized_source = self._source_tokenizer.tokenize(processed)
@@ -280,7 +282,7 @@ class Event2Event_wDimGroupsDatasetReader(Event2EventDatasetReader):
     def text_to_instance(
             self,
             source_string: str,
-            target_dict) -> Instance:  # type: ignore
+            target_dict = None) -> Instance:  # type: ignore
         # pylint: disable=arguments-differ
         processed = self._preprocess_string(self._source_tokenizer, source_string)
         tokenized_source = self._source_tokenizer.tokenize(processed)
@@ -288,6 +290,7 @@ class Event2Event_wDimGroupsDatasetReader(Event2EventDatasetReader):
             tokenized_source.insert(0, Token(START_SYMBOL))
         tokenized_source.append(Token(END_SYMBOL))
         source_field = TextField(tokenized_source, self._source_token_indexers)
+        
         if target_dict is not None:
             t_d = {"source": source_field}
             t_d["target_seq"] = self._build_target_field(target_dict["target_seq"])

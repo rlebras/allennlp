@@ -39,7 +39,10 @@ class StateDecoderEarlyFusion:
         event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
         self._output_projection_layer = Linear(output_dim, num_classes)
         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
-        self._recall = UnigramRecall()
+        
+        self._recalls = {}
+        for n in event2event.dim_names:
+            self._recalls[n] = UnigramRecall()
 
 
 @Model.register("event2event")
@@ -510,7 +513,9 @@ class Event2Event_wDimGroups(Event2Event):
 
         # embedding dim groups
         self._num_dim_groups = num_dim_groups
-        
+        self.dim_names = ["oEffect", "oReact", "oWant", "xAttr", "xEffect",
+                          "xIntent", "xNeed", "xReact", "xWant"]
+
         # We need the start symbol to provide as the input at the first timestep of decoding, and
         # end symbol as a way to indicate the end of the decoded sequence.
         self._start_index = self.vocab.get_token_index(START_SYMBOL, self._target_namespace)
@@ -543,8 +548,7 @@ class Event2Event_wDimGroups(Event2Event):
 
     def _assign_dim_losses(self,dim_array,loss_array):
         dims = dim_array.argmax(dim=1)
-        dim_names = ["oEffect", "oReact", "oWant", "xAttr", "xEffect",
-                     "xIntent", "xNeed", "xReact", "xWant"]
+        dim_names = self.dim_names
         loss_assign = [dim_names[i] for i in dims]
         loss_dict = {n: 0 for n in dim_names}
         count_dict = {n: 0 for n in dim_names}
@@ -554,6 +558,21 @@ class Event2Event_wDimGroups(Event2Event):
         loss_dict = {n: v/count_dict[n] if count_dict[n] else 0 for n,v in loss_dict.items()}
         return loss_dict
         
+    def _assign_dim_beams(self,dim_array,all_top_k_predictions):
+        # all_top_k_predictions is (bs x beam x seq_len-1)
+
+        dims = dim_array.argmax(dim=1)
+        dim_names = self.dim_names
+        loss_assign = [dim_names[i] for i in dims]
+        loss_dict = {}# {n: [] for n in dim_names}
+
+        for n,l in zip(loss_assign,all_top_k_predictions):
+            loss_dict[n] = loss_dict.get(n,[])
+            loss_dict[n].append(l)
+
+        loss_dict = {n: torch.stack(v) for n,v in loss_dict.items()}
+        assert sum(map(lambda x: x.shape[0], loss_dict.values()))
+        return loss_dict
                            
     @overrides
     def forward(self,  # type: ignore
@@ -622,29 +641,34 @@ class Event2Event_wDimGroups(Event2Event):
 
         # Perform beam search to obtain the predictions.
         if not self.training:
-            # for name, state in self._states.items():
-            # (batch_size, k, num_decoding_steps)
+            # TODO(Maarten): for generation, target_tokens is {}
+            # need to loop over self.dim_names and manually create
+            # 9 dim_arr to get all possible dim generations
             (all_top_k_predictions, log_probabilities) = self.beam_search(
                 final_encoder_output,
-                10,
-                self._get_num_decoding_steps(target_tokens["target_seq"]),
+                5,
+                self._get_num_decoding_steps(target_tokens.get("target_seq")),
                 batch_size,
                 source_mask,
                 self.state_decoder._embedder,
                 self.state_decoder._decoder_cell,
                 self.state_decoder._output_projection_layer,
-                early_fusion=target_tokens["dim"]
+                early_fusion=target_tokens["dim"] # this breaks at prediction time
             )
-            if target_tokens:
-                # TODO(maarten) Need to update recall for each dim separately?
-                # similar to how self._assing_dim_losses did but for
-                # unigram recall
-                self._update_recall(all_top_k_predictions,
-                                    target_tokens["target_seq"],
-                                    self.state_decoder._recall)
-            # ip_embed();exit()
-            output_dict["{}_top_k_predictions".format("")] = all_top_k_predictions
-            output_dict["{}_top_k_log_probabilities".format("")] = log_probabilities
+            #assign beams & probs to the right dimensions
+            dim2preds = self._assign_dim_beams(dim_arr, all_top_k_predictions)
+            dim2probs = self._assign_dim_beams(dim_arr, log_probabilities)
+            
+            if target_tokens:                
+                for dim, top_k_preds in dim2preds.items():
+                    self._update_recall(top_k_preds,
+                                        target_tokens["target_seq"],
+                                        self.state_decoder._recalls[dim])
+                
+                # ip_embed();exit()
+            for dim, top_k_preds in dim2preds.items():
+                output_dict["{}_top_k_predictions".format(dim)] = top_k_preds
+                output_dict["{}_top_k_log_probabilities".format(dim)] = dim2probs[dim]
 
         return output_dict
     
@@ -653,6 +677,8 @@ class Event2Event_wDimGroups(Event2Event):
         all_metrics = {}
         # Recall@10 needs beam search which doesn't happen during training.
         if not self.training:
-            ip_embed();exit()
-            all_metrics["target_seq"] = self.state_decoder._recall.get_metric(reset=reset)
+            # ip_embed();exit()
+            for dim in self.dim_names:
+                all_metrics[dim+"_rec"] = self.state_decoder._recalls[dim].get_metric(reset=reset)
+            # all_metrics["target_seq"] = self.state_decoder._recall.get_metric(reset=reset)
         return all_metrics
