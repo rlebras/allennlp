@@ -519,7 +519,9 @@ class Event2Event_wDimGroups(Event2Event):
         self._num_dim_groups = num_dim_groups
         self.dim_names = ["oEffect", "oReact", "oWant", "xAttr", "xEffect",
                           "xIntent", "xNeed", "xReact", "xWant"]
-        self.dim_embed = nn.Embedding(num_dim_groups,target_embedding_dim)
+        dim_emb_size = num_dim_groups
+        # self.dim_embed = nn.Linear(num_dim_groups,dim_emb_size,bias=False)
+        self.dim_embed = lambda x: x
 
         # We need the start symbol to provide as the input at the first timestep of decoding, and
         # end symbol as a way to indicate the end of the decoded sequence.
@@ -530,7 +532,7 @@ class Event2Event_wDimGroups(Event2Event):
 
         self.state_decoder = StateDecoderEarlyFusion(
             "decoder", self, num_classes,
-            target_embedding_dim, target_embedding_dim,
+            target_embedding_dim, dim_emb_size,
             self._decoder_output_dim
         )
         
@@ -614,6 +616,8 @@ class Event2Event_wDimGroups(Event2Event):
             
             targets = target_tokens["target_seq"]#["tokens"]
             dim_arr = target_tokens["dim"]
+            emb_dim_arr = self.dim_embed(dim_arr)
+
             target_sequence_length = targets["tokens"].size()[1]
             if target_sequence_length != 0:
                 loss = self.greedy_search(
@@ -622,10 +626,10 @@ class Event2Event_wDimGroups(Event2Event):
                     self.state_decoder._embedder,
                     self.state_decoder._decoder_cell,
                     self.state_decoder._output_projection_layer,
-                    early_fusion=dim_arr,
+                    early_fusion=emb_dim_arr,
                     batch_average_loss=False
                 )
-                loss_dict = self._assign_dim_losses(dim_arr,loss)
+                loss_dict = self._assign_dim_losses(target_tokens["dim"],loss)
                 
                 loss = loss.mean()
                 total_loss += loss.mean()
@@ -643,25 +647,38 @@ class Event2Event_wDimGroups(Event2Event):
 
         # Perform beam search to obtain the predictions.
         if not self.training:
+            # this is true during dev and during generation
             # TODO(Maarten): for generation, target_tokens is {}
             # need to loop over self.dim_names and manually create
             # 9 dim_arr to get all possible dim generations
+            if not target_tokens:
+                # during generation
+                batch_size = self._num_dim_groups
+                source_t = source["tokens"].expand(batch_size,source["tokens"].size(1))
+                final_encoder_output = final_encoder_output.expand(
+                    batch_size,final_encoder_output.size(1))
+                source_mask = source_mask.expand(
+                    batch_size,source_mask.size(1))
+                # manually decoder the sequence 9 times
+                dim_arr = torch.eye(self._num_dim_groups)
+                emb_dim_arr = self.dim_embed(dim_arr)
+                
             (all_top_k_predictions, log_probabilities) = self.beam_search(
                 final_encoder_output,
-                5,
+                10,
                 self._get_num_decoding_steps(target_tokens.get("target_seq")),
                 batch_size,
                 source_mask,
                 self.state_decoder._embedder,
                 self.state_decoder._decoder_cell,
                 self.state_decoder._output_projection_layer,
-                early_fusion=target_tokens["dim"] # this breaks at prediction time
+                early_fusion=emb_dim_arr
             )
             #assign beams & probs to the right dimensions
             dim2preds = self._assign_dim_beams(dim_arr, all_top_k_predictions)
             dim2probs = self._assign_dim_beams(dim_arr, log_probabilities)
             
-            if target_tokens:                
+            if target_tokens:
                 for dim, top_k_preds in dim2preds.items():
                     self._update_recall(top_k_preds,
                                         target_tokens["target_seq"],
@@ -684,3 +701,19 @@ class Event2Event_wDimGroups(Event2Event):
                 all_metrics[dim+"_rec"] = self.state_decoder._recalls[dim].get_metric(reset=reset)
             # all_metrics["target_seq"] = self.state_decoder._recall.get_metric(reset=reset)
         return all_metrics
+
+    @overrides
+    def decode(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
+        """
+        This method overrides ``Model.decode``, which gets called after ``Model.forward``, at test
+        time, to finalize predictions. The logic for the decoder part of the encoder-decoder lives
+        within the ``forward`` method.
+
+        This method trims the output predictions to the first end symbol, replaces indices with
+        corresponding tokens, and adds fields for the tokens to the ``output_dict``.
+        """
+        for name in self.dim_names:
+            top_k_predicted_indices = output_dict["{}_top_k_predictions".format(name)][0]
+            output_dict["{}_top_k_predicted_tokens".format(name)] = [self.decode_all(top_k_predicted_indices)]
+            
+        return output_dict

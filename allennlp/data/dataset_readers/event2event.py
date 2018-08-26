@@ -136,6 +136,32 @@ class Event2EventDatasetReader(DatasetReader):
        if len(retval) == 0:
           retval.append("none")
        return " ".join(retval)
+   
+    @staticmethod
+    def _preprocess_string_better(tokenizer, string: str) -> str:
+       string = string.lower()\
+                .replace("person x","personx")\
+                .replace("person y","persony")\
+                .replace("person z","personz")
+       
+       string = string[:-1] if string[-1] in ".,;:=!/&+\\" else string
+       
+       word_tokens = tokenizer.tokenize(string)
+       words = [token.text for token in word_tokens]
+       
+       # get rid of "to" or "to be" prepended to annotations
+       retval = []
+       first = 0
+       for word in words:
+          first += 1
+          if word == "to" and first == 1:
+             continue
+          if word == "be" and first < 3:
+             continue
+          retval.append(word)
+       if len(retval) == 0:
+          retval.append("none")
+       return " ".join(retval)
 
     def _build_target_field(self, target_string: str) -> TextField:
         processed = self._preprocess_string(self._target_tokenizer, target_string)
