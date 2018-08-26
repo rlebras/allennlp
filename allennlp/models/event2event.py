@@ -510,11 +510,16 @@ class Event2Event_wDimGroups(Event2Event):
         self._max_decoding_steps = max_decoding_steps
         self._target_namespace = target_namespace
         self._embedding_dropout = nn.Dropout(0.2)
+        
+        # hidden state of the decoder with that of the final hidden states of the encoder.
+        self._decoder_output_dim = self._encoder.get_output_dim()
+        target_embedding_dim = target_embedding_dim or self._source_embedder.get_output_dim()
 
         # embedding dim groups
         self._num_dim_groups = num_dim_groups
         self.dim_names = ["oEffect", "oReact", "oWant", "xAttr", "xEffect",
                           "xIntent", "xNeed", "xReact", "xWant"]
+        self.dim_embed = nn.Embedding(num_dim_groups,target_embedding_dim)
 
         # We need the start symbol to provide as the input at the first timestep of decoding, and
         # end symbol as a way to indicate the end of the decoded sequence.
@@ -522,13 +527,10 @@ class Event2Event_wDimGroups(Event2Event):
         self._end_index = self.vocab.get_token_index(END_SYMBOL, self._target_namespace)
         num_classes = self.vocab.get_vocab_size(self._target_namespace)
         # Decoder output dim needs to be the same as the encoder output dim since we initialize the
-        # hidden state of the decoder with that of the final hidden states of the encoder.
-        self._decoder_output_dim = self._encoder.get_output_dim()
-        target_embedding_dim = target_embedding_dim or self._source_embedder.get_output_dim()
 
         self.state_decoder = StateDecoderEarlyFusion(
             "decoder", self, num_classes,
-            target_embedding_dim, num_dim_groups,
+            target_embedding_dim, target_embedding_dim,
             self._decoder_output_dim
         )
         
