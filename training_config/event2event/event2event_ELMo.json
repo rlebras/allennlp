@@ -59,7 +59,8 @@
       "dropout": 0.2
     },
     "max_decoding_steps": 10,
-    "target_namespace": "target_tokens"
+    "target_namespace": "target_tokens",
+    "metrics": ["unigram_recall", "bleu_n", "rouge_n"]
   },
   "iterator": {
     "type": "bucket",

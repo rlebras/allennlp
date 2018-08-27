@@ -10,6 +10,7 @@ from torch.nn.modules.rnn import GRUCell, LSTMCell
 from torch.nn.modules.linear import Linear
 from torch import nn
 import torch.nn.functional as F
+from allennlp.training.metrics.metric import Metric
 
 from allennlp.common.util import START_SYMBOL, END_SYMBOL
 from allennlp.data.vocabulary import Vocabulary
@@ -21,14 +22,16 @@ from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_lo
 from allennlp.training.metrics import UnigramRecall, RougeL, RougeN, BleuN
 
 class StateDecoder:
-    def __init__(self, name, event2event, num_classes, input_dim, output_dim):
+    def __init__(self, name, event2event, num_classes, input_dim, output_dim, metrics):
         self._embedder = Embedding(num_classes, input_dim)
         event2event.add_module("{}_embedder".format(name), self._embedder)
         self._decoder_cell = GRUCell(input_dim, output_dim)
         event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
         self._output_projection_layer = Linear(output_dim, num_classes)
         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
-        self._recall = UnigramRecall()
+        self._recalls = {}
+        for m in metrics:
+            self._recalls[m] = Metric.by_name(m)()
         
 class StateDecoderEarlyFusion:
     """ Input dim of RNN is word_emb_dim + numgroups"""
@@ -83,7 +86,8 @@ class Event2Event(Model):
                  max_decoding_steps: int,
                  target_namespace: str = "tokens",
                  target_embedding_dim: int = None,
-                 target_fields = None) -> None:
+                 target_fields = None,
+                 metrics = None) -> None:
         super(Event2Event, self).__init__(vocab)
         # TODO(brendanr): Hack the embeddings here like initWEmb in modeling/utils/preprocess.py?
         self._source_embedder = source_embedder
@@ -110,7 +114,8 @@ class Event2Event(Model):
                     self,
                     num_classes,
                     target_embedding_dim,
-                    self._decoder_output_dim
+                    self._decoder_output_dim,
+                    metrics
             )
 
     # class StateDecoder:
@@ -147,6 +152,10 @@ class Event2Event(Model):
                 relevant_mask,
                 self._end_index
         )
+
+    def _update_recalls(self, all_top_k_predictions, target_tokens, target_recalls):
+        for metric_name, metric in target_recalls.items():
+            self._update_recall(all_top_k_predictions, target_tokens, metric)
 
     def _get_num_decoding_steps(self, target_tokens):
         if target_tokens:
@@ -227,7 +236,7 @@ class Event2Event(Model):
                         state._output_projection_layer
                 )
                 if target_tokens:
-                    self._update_recall(all_top_k_predictions, target_tokens[name], state._recall)
+                    self._update_recalls(all_top_k_predictions, target_tokens[name], state._recalls)
                 output_dict["{}_top_k_predictions".format(name)] = all_top_k_predictions
                 output_dict["{}_top_k_log_probabilities".format(name)] = log_probabilities
 
@@ -473,7 +482,8 @@ class Event2Event(Model):
         # Recall@10 needs beam search which doesn't happen during training.
         if not self.training:
             for name, state in self._states.items():
-                all_metrics[name] = state._recall.get_metric(reset=reset)
+                for metric_name, metric in state._recalls.items():
+                    all_metrics[name+"_" + metric_name] = metric.get_metric(reset=reset)
         return all_metrics
 
 
