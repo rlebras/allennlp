@@ -10,6 +10,7 @@
     "target_tokenizer": {
       "type": "word"
     },
+    "target_fields": ["oEffect", "oReact", "oWant", "xAttr", "xEffect", "xIntent", "xNeed", "xReact", "xWant"],
     "source_token_indexers": {
       "tokens": {
         "type": "single_id",
@@ -29,6 +30,7 @@
   "validation_data_path": "/data/dev.csv",
   "model": {
     "type": "event2event",
+    "target_fields": ["oEffect", "oReact", "oWant", "xAttr", "xEffect", "xIntent", "xNeed", "xReact", "xWant"],
     "source_embedder": {
       "tokens": {
         "type": "embedding",

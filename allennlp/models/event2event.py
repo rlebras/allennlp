@@ -28,8 +28,8 @@ class StateDecoder:
         event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
         self._output_projection_layer = Linear(output_dim, num_classes)
         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
-        self._recall = UnigramRecall()
-        # self._recall = RougeL()
+        # self._recall = UnigramRecall()
+        self._recall = RougeL()
         # self._recall = BleuN(n=2)
         
 class StateDecoderEarlyFusion:
