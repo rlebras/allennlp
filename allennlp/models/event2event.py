@@ -18,7 +18,7 @@ from allennlp.modules.similarity_functions import SimilarityFunction
 from allennlp.modules.token_embedders import Embedding
 from allennlp.models.model import Model
 from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_logits, weighted_sum
-from allennlp.training.metrics import UnigramRecall
+from allennlp.training.metrics import UnigramRecall, RougeL, RougeN, BleuN
 
 class StateDecoder:
     def __init__(self, name, event2event, num_classes, input_dim, output_dim):
@@ -42,7 +42,9 @@ class StateDecoderEarlyFusion:
         
         self._recalls = {}
         for n in event2event.dim_names:
-            self._recalls[n] = UnigramRecall()
+            # self._recalls[n] = UnigramRecall()
+            self._recalls[n] = BleuN(n=2)
+            # self._recalls[n] = RougeN(N=2)
 
 
 @Model.register("event2event")
