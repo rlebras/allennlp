@@ -73,7 +73,7 @@ class Event2MindDatasetReader(DatasetReader):
             reader.__next__()
 
             for (line_num, line_parts) in enumerate(reader):
-                if len(line_parts) != 7:
+                if len(line_parts) != 7 and len(line_parts) != 5:
                     line = ','.join([str(s) for s in line_parts])
                     raise ConfigurationError("Invalid line format: %s (line number %d)" % (line, line_num + 1))
                 source_sequence = line_parts[1]

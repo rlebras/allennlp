@@ -16,6 +16,8 @@ from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
 import numpy as np
 import itertools
 
+from IPython import embed as ip_embed
+
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 @DatasetReader.register("event2event")
@@ -140,6 +142,32 @@ class Event2EventDatasetReader(DatasetReader):
        if len(retval) == 0:
           retval.append("none")
        return " ".join(retval)
+   
+    @staticmethod
+    def _preprocess_string_better(tokenizer, string: str) -> str:
+       string = string.lower()\
+                .replace("person x","personx")\
+                .replace("person y","persony")\
+                .replace("person z","personz")
+       
+       string = string[:-1] if string[-1] in ".,;:=!/&+\\" else string
+       
+       word_tokens = tokenizer.tokenize(string)
+       words = [token.text for token in word_tokens]
+       
+       # get rid of "to" or "to be" prepended to annotations
+       retval = []
+       first = 0
+       for word in words:
+          first += 1
+          if word == "to" and first == 1:
+             continue
+          if word == "be" and first < 3:
+             continue
+          retval.append(word)
+       if len(retval) == 0:
+          retval.append("none")
+       return " ".join(retval)
 
     def _build_target_field(self, target_string: str) -> TextField:
         if target_string == "":
@@ -155,7 +183,7 @@ class Event2EventDatasetReader(DatasetReader):
     def text_to_instance(
             self,
             source_string: str,
-            target_dict) -> Instance:  # type: ignore
+            target_dict = None) -> Instance:  # type: ignore
         # pylint: disable=arguments-differ
         processed = self._preprocess_string(self._source_tokenizer, source_string)
         tokenized_source = self._source_tokenizer.tokenize(processed)
@@ -289,7 +317,7 @@ class Event2Event_wDimGroupsDatasetReader(Event2EventDatasetReader):
     def text_to_instance(
             self,
             source_string: str,
-            target_dict) -> Instance:  # type: ignore
+            target_dict = None) -> Instance:  # type: ignore
         # pylint: disable=arguments-differ
         processed = self._preprocess_string(self._source_tokenizer, source_string)
         tokenized_source = self._source_tokenizer.tokenize(processed)
@@ -297,6 +325,7 @@ class Event2Event_wDimGroupsDatasetReader(Event2EventDatasetReader):
             tokenized_source.insert(0, Token(START_SYMBOL))
         tokenized_source.append(Token(END_SYMBOL))
         source_field = TextField(tokenized_source, self._source_token_indexers)
+        
         if target_dict is not None:
             t_d = {"source": source_field}
             t_d["target_seq"] = self._build_target_field(target_dict["target_seq"])

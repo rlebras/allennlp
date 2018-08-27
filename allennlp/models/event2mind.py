@@ -16,7 +16,7 @@ from allennlp.modules.similarity_functions import SimilarityFunction
 from allennlp.modules.token_embedders import Embedding
 from allennlp.models.model import Model
 from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_logits, weighted_sum
-from allennlp.training.metrics import UnigramRecall
+from allennlp.training.metrics import UnigramRecall, RougeL, BleuN
 
 @Model.register("event2mind")
 class Event2Mind(Model):
@@ -96,6 +96,9 @@ class Event2Mind(Model):
             self._output_projection_layer = Linear(output_dim, num_classes)
             event2mind.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
             self._recall = UnigramRecall()
+            # self._recall = RougeL()
+            # self._recall = BleuN(n=2)
+
 
     def _update_recall(self, all_top_k_predictions, target_tokens, target_recall):
         targets = target_tokens["tokens"]
