@@ -29,6 +29,8 @@ class StateDecoder:
         self._output_projection_layer = Linear(output_dim, num_classes)
         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
         self._recall = UnigramRecall()
+        # self._recall = RougeL()
+        # self._recall = BleuN(n=2)
         
 class StateDecoderEarlyFusion:
     """ Input dim of RNN is word_emb_dim + numgroups"""
@@ -42,8 +44,8 @@ class StateDecoderEarlyFusion:
         
         self._recalls = {}
         for n in event2event.dim_names:
-            # self._recalls[n] = UnigramRecall()
-            self._recalls[n] = BleuN(n=2)
+            self._recalls[n] = UnigramRecall()
+            # self._recalls[n] = BleuN(n=2)
             # self._recalls[n] = RougeN(N=2)
 
 
