@@ -1,0 +1,84 @@
+{
+  "dataset_reader": {
+    "type": "event2event",
+    "source_tokenizer": {
+      "type": "word",
+      "word_splitter": {
+        "type": "spacy"
+      }
+    },
+    "target_tokenizer": {
+      "type": "word"
+    },
+    "target_fields": ["oEffect", "oReact", "oWant", "xAttr", "xEffect", "xIntent", "xNeed", "xReact", "xWant"],
+    "source_token_indexers": {
+      "tokens": {
+        "type": "single_id",
+        "namespace": "source_tokens"
+      },
+      "openai_transformer": {
+        "type": "openai_transformer_byte_pair",
+        //"n_ctx": 50,
+        "model_path": "allennlp/tests/fixtures/openai_transformer/transformer_small.tar.gz"
+      }
+    },
+    "target_token_indexers": {
+      "tokens": {
+        "namespace": "target_tokens"
+      }
+    }
+  },
+  "vocabulary": {
+    "min_count": {"tokens": 2}
+  },
+  "train_data_path": "/data/train.csv",
+  "validation_data_path": "/data/dev.csv",
+  "model": {
+    "type": "event2event",
+    "target_fields": ["oEffect", "oReact", "oWant", "xAttr", "xEffect", "xIntent", "xNeed", "xReact", "xWant"],
+    "source_embedder": {
+      "allow_unmatched_keys": true,
+      "embedder_to_indexer_map": {
+        "tokens": ["tokens"],
+        "openai_transformer": ["openai_transformer", "openai_transformer-offsets"]
+      },
+      "tokens": {
+        "type": "embedding",
+        "vocab_namespace": "source_tokens",
+        "pretrained_file": "https://s3-us-west-2.amazonaws.com/allennlp/datasets/glove/glove.6B.300d.txt.gz",
+        "embedding_dim": 300,
+        "trainable": false
+      },
+      "openai_transformer": {
+        "type": "openai_transformer_embedder",
+        "transformer": {
+          "model_path": "https://s3-us-west-2.amazonaws.com/allennlp/models/openai-transformer-lm-2018.07.23.tar.gz"
+        },
+      }
+    },
+    "encoder": {
+      "type": "gru",
+      "input_size": 1068,
+      "hidden_size": 100,
+      "num_layers": 1,
+      "bidirectional": true,
+      "dropout": 0.2
+    },
+    "max_decoding_steps": 10,
+    "target_namespace": "target_tokens"
+  },
+  "iterator": {
+    "type": "basic",
+    // "padding_noise": 0.0,
+    "batch_size" : 64,
+    // "sorting_keys": [["source"]]
+  },
+  "trainer": {
+    "num_epochs": 40,
+    "patience": 10,
+    "cuda_device": 0,
+    "optimizer": {
+      "type": "adam"
+    }
+  }
+}
