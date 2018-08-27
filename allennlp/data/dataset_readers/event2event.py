@@ -13,7 +13,6 @@ from allennlp.data.fields import TextField, ArrayField
 from allennlp.data.instance import Instance
 from allennlp.data.tokenizers import Token, Tokenizer, WordTokenizer
 from allennlp.data.token_indexers import TokenIndexer, SingleIdTokenIndexer
-from allennlp.data.vocabulary import DEFAULT_PADDING_TOKEN
 import numpy as np
 import itertools
 
@@ -57,54 +56,61 @@ class Event2EventDatasetReader(DatasetReader):
                  source_token_indexers: Dict[str, TokenIndexer] = None,
                  target_token_indexers: Dict[str, TokenIndexer] = None,
                  source_add_start_token: bool = True,
-                 lazy: bool = False) -> None:
+                 lazy: bool = False,
+                 target_fields = None) -> None:
         super().__init__(lazy)
         self._source_tokenizer = source_tokenizer or WordTokenizer()
         self._target_tokenizer = target_tokenizer or self._source_tokenizer
         self._source_token_indexers = source_token_indexers or {"tokens": SingleIdTokenIndexer()}
         self._target_token_indexers = target_token_indexers or self._source_token_indexers
         self._source_add_start_token = source_add_start_token
+        self._target_fields = target_fields
 
     @overrides
     def _read(self, file_path):
 
-        target_fields = ["oEffect", "oReact", "oWant", "xAttr", "xEffect", "xIntent", "xNeed", "xReact", "xWant"]
-
         with open(cached_path(file_path), "r") as data_file:
             logger.info("Reading instances from lines in file at: %s", file_path)
             reader = csv.reader(data_file)
-            # Skip header
-            reader.__next__()
 
-            for (line_num, line_parts) in enumerate(reader):
-                if len(line_parts) != len(target_fields)+1:
-                    line = ','.join([str(s) for s in line_parts])
+            logger.info("Reading instances from lines in file at: %s", file_path)
+            reader = csv.DictReader(data_file)
+            header = reader.fieldnames
+
+            for (line_num, line_dict) in enumerate(reader):
+                if len(line_dict) != len(header):
+                    line = ','.join([str(s) for s in line_dict.items()])
                     raise ConfigurationError("Invalid line format: %s (line number %d)" % (line, line_num + 1))
-                source_sequence = line_parts[0]
+
+                # source_seq : event
+                source_sequence = line_dict["event"]
+
                 # ["oEffect", "oReact", "oWant", "xAttr" , "xEffect", "xIntent", "xNeed", "xReact", "xWant"]
-                target_indices = range(0, len(target_fields))
-                targets_dict = {}
+                target_indices = range(0, len(self._target_fields))
                 targets = []
-                for i in target_indices:
-                    field = target_fields[i]
-                    if line_parts[i + 1] == None or line_parts[i + 1] == "[]":
-                        targets_dict[field] = [""]
+                for field in self._target_fields:
+                    if line_dict[field] == None or line_dict[field] == "[]":
                         targets.append([""])
                     else:
-                        targets_dict[field] = json.loads(line_parts[i + 1])
-                        targets.append(json.loads(line_parts[i + 1]))
+                        targets.append(json.loads(line_dict[field]))
 
                 for vals in itertools.product(*targets):
                     target_dict = {}
+                    has_target = False
                     for j in target_indices:
-                        target_dict[target_fields[j]] = vals[j]
-                    yield self.text_to_instance(source_sequence, target_dict)
+                        target_dict[self._target_fields[j]] = vals[j]
+                        if vals[j] != "":
+                            has_target = True
+                    if has_target:
+                        yield self.text_to_instance(source_sequence, target_dict)
 
     """
     See https://github.com/maartensap/event2mind-internal/blob/master/code/modeling/utils/preprocess.py#L80.
     """
     @staticmethod
     def _preprocess_string(tokenizer, string: str) -> str:
+       if str == "":
+           return ""
        word_tokens = tokenizer.tokenize(string.lower())
        words = [token.text for token in word_tokens]
        if "person y" in string.lower():
@@ -164,12 +170,15 @@ class Event2EventDatasetReader(DatasetReader):
        return " ".join(retval)
 
     def _build_target_field(self, target_string: str) -> TextField:
-        processed = self._preprocess_string(self._target_tokenizer, target_string)
-        tokenized_target = self._target_tokenizer.tokenize(processed)
-        tokenized_target.insert(0, Token(START_SYMBOL))
-        tokenized_target.append(Token(END_SYMBOL))
-        return TextField(tokenized_target, self._target_token_indexers)
-
+        if target_string == "":
+            ret = TextField([Token(START_SYMBOL), Token(END_SYMBOL)], self._target_token_indexers)
+        else:
+            processed = self._preprocess_string(self._target_tokenizer, target_string)
+            tokenized_target = self._target_tokenizer.tokenize(processed)
+            tokenized_target.insert(0, Token(START_SYMBOL))
+            tokenized_target.append(Token(END_SYMBOL))
+            ret = TextField(tokenized_target, self._target_token_indexers)
+        return ret
     @overrides
     def text_to_instance(
             self,
