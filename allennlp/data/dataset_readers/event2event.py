@@ -180,6 +180,7 @@ class Event2EventDatasetReader(DatasetReader):
             tokenized_target.append(Token(END_SYMBOL))
             ret = TextField(tokenized_target, self._target_token_indexers)
         return ret
+    
     @overrides
     def text_to_instance(
             self,
