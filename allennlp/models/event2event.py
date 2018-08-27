@@ -77,7 +77,8 @@ class Event2Event(Model):
                  encoder: Seq2SeqEncoder,
                  max_decoding_steps: int,
                  target_namespace: str = "tokens",
-                 target_embedding_dim: int = None) -> None:
+                 target_embedding_dim: int = None,
+                 target_fields = None) -> None:
         super(Event2Event, self).__init__(vocab)
         # TODO(brendanr): Hack the embeddings here like initWEmb in modeling/utils/preprocess.py?
         self._source_embedder = source_embedder
@@ -85,6 +86,7 @@ class Event2Event(Model):
         self._max_decoding_steps = max_decoding_steps
         self._target_namespace = target_namespace
         self._embedding_dropout = nn.Dropout(0.2)
+        self._target_fields = target_fields
 
         # We need the start symbol to provide as the input at the first timestep of decoding, and
         # end symbol as a way to indicate the end of the decoded sequence.
@@ -96,22 +98,10 @@ class Event2Event(Model):
         self._decoder_output_dim = self._encoder.get_output_dim()
         target_embedding_dim = target_embedding_dim or self._source_embedder.get_output_dim()
 
-        state_names = [
-            'oEffect',
-            'oReact',
-            'oWant',
-            'xAttr',
-            'xEffect',
-            'xIntent',
-            'xNeed',
-            'xReact',
-            'xWant'
-        ]
-
         self._states: Dict[str, Event2Event.StateDecoder] = {}
-        for name in state_names:
-            self._states[name] = StateDecoder(
-                    name,
+        for field in self._target_fields:
+            self._states[field] = StateDecoder(
+                    field,
                     self,
                     num_classes,
                     target_embedding_dim,
@@ -131,6 +121,17 @@ class Event2Event(Model):
     def _update_recall(self, all_top_k_predictions, target_tokens, target_recall):
         targets = target_tokens["tokens"]
         target_mask = get_text_field_mask(target_tokens)
+
+        empty_target_mask = []
+        for i, t in enumerate(targets.data):
+            if numpy.count_nonzero(t.data) == 2:
+                empty_target_mask.append([0]*len(target_mask.data[i]))
+            else:
+                empty_target_mask.append([1]*len(target_mask.data[i]))
+        empty_target_mask_tsr = torch.cuda.LongTensor(empty_target_mask)
+
+        target_mask = target_mask * empty_target_mask_tsr
+
         # See comment in _get_loss.
         # TODO(brendanr): Do we need contiguous here?
         relevant_targets = targets[:, 1:].contiguous()
@@ -187,21 +188,18 @@ class Event2Event(Model):
                         "targets only: {} Keys in states only: {}".format(target_only, states_only))
             total_loss = 0
             loss_count = 0
+
             for name, state in self._states.items():
-                targets = target_tokens[name]["tokens"]
-                target_sequence_length = targets.size()[1]
-                if target_sequence_length > 0:
-                    loss = self.greedy_search(
-                            final_encoder_output,
-                            target_tokens[name],
-                            state._embedder,
-                            state._decoder_cell,
-                            state._output_projection_layer)
-                    total_loss += loss
-                    loss_count = loss_count + 1
-                else:
-                    loss = 1
+                loss = self.greedy_search(
+                        final_encoder_output,
+                        target_tokens[name],
+                        state._embedder,
+                        state._decoder_cell,
+                        state._output_projection_layer
+                )
                 output_dict["{}_loss".format(name)] = loss
+                total_loss += loss
+                loss_count = loss_count + 1
 
             # Average loss for interpretability.
             if loss_count == 0:
@@ -262,8 +260,18 @@ class Event2Event(Model):
             step_logits.append(output_projections.unsqueeze(1))
         # (batch_size, num_decoding_steps, num_classes)
         logits = torch.cat(step_logits, 1)
+
         target_mask = get_text_field_mask(target_tokens)
-        return self._get_loss(logits, targets, target_mask, batch_average=batch_average_loss)
+
+        empty_target_mask = []
+        for i, t in enumerate(targets.data):
+            if numpy.count_nonzero(t.data) == 2:
+                empty_target_mask.append([0]*len(target_mask.data[i]))
+            else:
+                empty_target_mask.append([1]*len(target_mask.data[i]))
+        empty_target_mask_tsr = torch.cuda.LongTensor(empty_target_mask)
+
+        return self._get_loss(logits, targets, target_mask*empty_target_mask_tsr, batch_average=batch_average_loss)
 
     def beam_search(self,
                     final_encoder_output: torch.LongTensor,
@@ -376,14 +384,15 @@ class Event2Event(Model):
 
         # Reconstruct the sequences.
         reconstructed_predictions = [predictions[num_decoding_steps - 1].unsqueeze(2)]
-        cur_backpointers = backpointers[num_decoding_steps - 2]
-        for timestep in range(num_decoding_steps - 2, 0, -1):
-            cur_preds = predictions[timestep].gather(1, cur_backpointers).unsqueeze(2)
-            reconstructed_predictions.append(cur_preds)
-            cur_backpointers = backpointers[timestep - 1].gather(1, cur_backpointers)
-        final_preds = predictions[0].gather(1, cur_backpointers).unsqueeze(2)
-        reconstructed_predictions.append(final_preds)
-        # We don't add the start tokens here. They are implicit.
+        if num_decoding_steps > 1:
+            cur_backpointers = backpointers[num_decoding_steps - 2]
+            for timestep in range(num_decoding_steps - 2, 0, -1):
+                cur_preds = predictions[timestep].gather(1, cur_backpointers).unsqueeze(2)
+                reconstructed_predictions.append(cur_preds)
+                cur_backpointers = backpointers[timestep - 1].gather(1, cur_backpointers)
+            final_preds = predictions[0].gather(1, cur_backpointers).unsqueeze(2)
+            reconstructed_predictions.append(final_preds)
+            # We don't add the start tokens here. They are implicit.
 
         all_predictions = torch.cat(list(reversed(reconstructed_predictions)), 2)
         return (all_predictions, log_probabilities[-1])

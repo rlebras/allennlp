@@ -3,6 +3,7 @@ from typing import Optional
 from overrides import overrides
 import sys
 import torch
+import numpy
 
 from allennlp.common.checks import ConfigurationError
 from allennlp.training.metrics.metric import Metric
@@ -46,6 +47,7 @@ class UnigramRecall(Metric):
         k = predictions.size()[1]
         batch_size = predictions.size()[0]
         correct = 0.0
+        total = 0.0
         # Note: See preprocess.py.
         for i in range(batch_size):
             beams = predictions[i]
@@ -57,6 +59,9 @@ class UnigramRecall(Metric):
                 masked_gold = cur_gold
             #TODO(brendanr): Verify! Is 0 a valid index?
             cleaned_gold = [x for x in masked_gold if x != 0 and x != end_index]
+
+            if numpy.count_nonzero(mask[i].data) != 0:
+                total = total + 1
 
             retval = 0.
             for w in cleaned_gold:
@@ -75,7 +80,7 @@ class UnigramRecall(Metric):
             correct += retval
 
         self.correct_count += correct
-        self.total_count += predictions.size()[0]
+        self.total_count += total
 
     def get_metric(self, reset: bool = False):
         """
