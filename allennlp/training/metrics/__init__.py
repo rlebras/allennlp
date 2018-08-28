@@ -5,7 +5,7 @@ accuracy or F1 score.
 """
 
 from allennlp.training.metrics.metric import Metric
-from allennlp.training.metrics.average import Average
+from allennlp.training.metrics.average import Average, BatchedAverage
 from allennlp.training.metrics.boolean_accuracy import BooleanAccuracy
 from allennlp.training.metrics.categorical_accuracy import CategoricalAccuracy
 from allennlp.training.metrics.conll_coref_scores import ConllCorefScores
