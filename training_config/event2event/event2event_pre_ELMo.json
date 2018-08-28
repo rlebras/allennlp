@@ -10,7 +10,7 @@
     "target_tokenizer": {
       "type": "word"
     },
-    "target_fields": ["xIntent"],
+    "target_fields": ["xIntent", "xNeed"],
     "source_token_indexers": {
       "tokens": {
         "type": "single_id",
@@ -33,7 +33,7 @@
   "validation_data_path": "/data/dev.csv",
   "model": {
     "type": "event2event",
-    "target_fields": ["xIntent"],
+    "target_fields": ["xIntent", "xNeed"],
     "source_embedder": {
       "tokens": {
         "type": "embedding",

@@ -60,7 +60,7 @@
     },
     "max_decoding_steps": 10,
     "target_namespace": "target_tokens",
-    "metrics": ["unigram_recall", "bleu_n", "rouge_n"]
+    "metrics": ["unigram_recall", "bleu_n", "rouge_l"]
   },
   "iterator": {
     "type": "bucket",

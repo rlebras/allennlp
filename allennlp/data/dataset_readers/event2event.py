@@ -173,7 +173,7 @@ class Event2EventDatasetReader(DatasetReader):
         if target_string == "":
             ret = TextField([Token(START_SYMBOL), Token(END_SYMBOL)], self._target_token_indexers)
         else:
-            processed = self._preprocess_string(self._target_tokenizer, target_string)
+            processed = self._preprocess_string_better(self._target_tokenizer, target_string)
             tokenized_target = self._target_tokenizer.tokenize(processed)
             tokenized_target.insert(0, Token(START_SYMBOL))
             tokenized_target.append(Token(END_SYMBOL))
@@ -185,7 +185,7 @@ class Event2EventDatasetReader(DatasetReader):
             source_string: str,
             target_dict = None) -> Instance:  # type: ignore
         # pylint: disable=arguments-differ
-        processed = self._preprocess_string(self._source_tokenizer, source_string)
+        processed = self._preprocess_string_better(self._source_tokenizer, source_string)
         tokenized_source = self._source_tokenizer.tokenize(processed)
         if self._source_add_start_token:
             tokenized_source.insert(0, Token(START_SYMBOL))
