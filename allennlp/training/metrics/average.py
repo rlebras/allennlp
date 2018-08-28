@@ -42,3 +42,10 @@ class Average(Metric):
     def reset(self):
         self._total_value = 0.0
         self._count = 0
+
+@Metric.register("batched_average")
+class BatchedAverage(Average):
+    def __call__(self, val_sum, count):
+        self._total_value += list(self.unwrap_to_tensors(val_sum))[0]
+        self._count += list(self.unwrap_to_tensors(count))[0]
+

@@ -19,7 +19,7 @@ from allennlp.modules.similarity_functions import SimilarityFunction
 from allennlp.modules.token_embedders import Embedding
 from allennlp.models.model import Model
 from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_logits, weighted_sum
-from allennlp.training.metrics import UnigramRecall, RougeL, RougeN, BleuN, Average
+from allennlp.training.metrics import UnigramRecall, RougeL, RougeN, BleuN, BatchedAverage
 
 class StateDecoder:
     def __init__(self, name, event2event, num_classes, input_dim, output_dim, metrics):
@@ -30,7 +30,7 @@ class StateDecoder:
         self._output_projection_layer = Linear(output_dim, num_classes)
         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
         self._recalls = {}
-        self._xent = Average()
+        self._xent = BatchedAverage()
         for m in metrics:
             self._recalls[m] = Metric.by_name(m)()
         
@@ -207,14 +207,17 @@ class Event2Event(Model):
             loss_count = 0
 
             for name, state in self._states.items():
-                loss = self.greedy_search(
+                loss, count = self.greedy_search(
                         final_encoder_output,
                         target_tokens[name],
                         state._embedder,
                         state._decoder_cell,
                         state._output_projection_layer
                 )
-                output_dict["{}_loss".format(name)] = loss
+                # total xent over non-zero targets
+                output_dict["{}_loss".format(name)] = loss * count.float()
+                output_dict["{}_count".format(name)] = count
+                
                 total_loss += loss
                 loss_count = loss_count + 1
 
@@ -241,7 +244,7 @@ class Event2Event(Model):
                 if target_tokens:
                     self._update_recalls(all_top_k_predictions, target_tokens[name], state._recalls)
                     # also update loss counter
-                    state._xent(output_dict[name+"_loss"])
+                    state._xent(output_dict[name+"_loss"],output_dict[name+"_count"])
                     
                 output_dict["{}_top_k_predictions".format(name)] = all_top_k_predictions
                 output_dict["{}_top_k_log_probabilities".format(name)] = log_probabilities
@@ -291,7 +294,10 @@ class Event2Event(Model):
                 empty_target_mask.append([1]*len(target_mask.data[i]))
         empty_target_mask_tsr = torch.cuda.LongTensor(empty_target_mask)
 
-        return self._get_loss(logits, targets, target_mask*empty_target_mask_tsr, batch_average=batch_average_loss)
+        target_mask = target_mask*empty_target_mask_tsr
+        loss = self._get_loss(logits, targets, target_mask, batch_average=batch_average_loss)
+        count = (target_mask.sum(1) > 0).sum()
+        return loss, count
 
     def beam_search(self,
                     final_encoder_output: torch.LongTensor,
@@ -450,6 +456,7 @@ class Event2Event(Model):
         loss = sequence_cross_entropy_with_logits(
             logits, relevant_targets, relevant_mask,
             batch_average=batch_average)
+
         return loss
 
     def decode_all(self, predicted_indices: torch.Tensor):
