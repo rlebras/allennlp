@@ -41,7 +41,7 @@
     "encoder": {
       "type": "gru",
       "input_size": 300,
-      "hidden_size": 100,
+      "hidden_size": 300,
       "num_layers": 1,
       "bidirectional": true,
       "dropout": 0.2

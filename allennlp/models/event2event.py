@@ -14,7 +14,7 @@ from allennlp.training.metrics.metric import Metric
 
 from allennlp.common.util import START_SYMBOL, END_SYMBOL
 from allennlp.data.vocabulary import Vocabulary
-from allennlp.modules import TextFieldEmbedder, Seq2SeqEncoder
+from allennlp.modules import TextFieldEmbedder, Seq2VecEncoder
 from allennlp.modules.similarity_functions import SimilarityFunction
 from allennlp.modules.token_embedders import Embedding
 from allennlp.models.model import Model
@@ -45,9 +45,9 @@ class StateDecoderEarlyFusion:
         
         self._recalls = {}
         for n in event2event.dim_names:
-            self._recalls[n] = UnigramRecall()
+            # self._recalls[n] = UnigramRecall()
             # self._recalls[n] = BleuN(n=2)
-            # self._recalls[n] = RougeN(N=2)
+            self._recalls[n] = RougeL()
 
 
 @Model.register("event2event")
@@ -82,7 +82,7 @@ class Event2Event(Model):
     def __init__(self,
                  vocab: Vocabulary,
                  source_embedder: TextFieldEmbedder,
-                 encoder: Seq2SeqEncoder,
+                 encoder: Seq2VecEncoder,
                  max_decoding_steps: int,
                  target_namespace: str = "tokens",
                  target_embedding_dim: int = None,
@@ -189,8 +189,9 @@ class Event2Event(Model):
         embedded_input = self._embedding_dropout(self._source_embedder(source))
         batch_size, _, _ = embedded_input.size()
         source_mask = get_text_field_mask(source)
-        encoder_outputs = self._encoder(embedded_input, source_mask)
-        final_encoder_output = encoder_outputs[:, -1]  # (batch_size, encoder_output_dim)
+
+        # (batch_size, encoder_output_dim)
+        final_encoder_output = self._encoder(embedded_input, source_mask)
         output_dict = {}
 
         # Perform greedy search so we can get the loss.
@@ -504,7 +505,7 @@ class Event2Event_wDimGroups(Event2Event):
         be specified as ``target_namespace``.
     source_embedder : ``TextFieldEmbedder``, required
         Embedder for source side sequences
-    encoder : ``Seq2SeqEncoder``, required
+    encoder : ``Seq2VecEncoder``, required
         The encoder of the "encoder/decoder" model
     max_decoding_steps : int, required
         Length of decoded sequences
@@ -519,7 +520,7 @@ class Event2Event_wDimGroups(Event2Event):
     def __init__(self,
                  vocab: Vocabulary,
                  source_embedder: TextFieldEmbedder,
-                 encoder: Seq2SeqEncoder,
+                 encoder: Seq2VecEncoder,
                  num_dim_groups: int,
                  max_decoding_steps: int,
                  target_namespace: str = "tokens",
