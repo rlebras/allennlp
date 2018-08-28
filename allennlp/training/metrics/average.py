@@ -33,7 +33,7 @@ class Average(Metric):
         -------
         The average of all values that were passed to ``__call__``.
         """
-        average_value = self._total_value / self._count if self._count > 0 else 0
+        average_value = float(self._total_value) / float(self._count) if self._count > 0 else 0.
         if reset:
             self.reset()
         return average_value

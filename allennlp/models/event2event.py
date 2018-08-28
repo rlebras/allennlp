@@ -19,7 +19,7 @@ from allennlp.modules.similarity_functions import SimilarityFunction
 from allennlp.modules.token_embedders import Embedding
 from allennlp.models.model import Model
 from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_logits, weighted_sum
-from allennlp.training.metrics import UnigramRecall, RougeL, RougeN, BleuN
+from allennlp.training.metrics import UnigramRecall, RougeL, RougeN, BleuN, Average
 
 class StateDecoder:
     def __init__(self, name, event2event, num_classes, input_dim, output_dim, metrics):
@@ -30,6 +30,7 @@ class StateDecoder:
         self._output_projection_layer = Linear(output_dim, num_classes)
         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
         self._recalls = {}
+        self._xent = Average()
         for m in metrics:
             self._recalls[m] = Metric.by_name(m)()
         
@@ -128,6 +129,7 @@ class Event2Event(Model):
     #         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
     #         self._recall = UnigramRecall()
 
+    
     def _update_recall(self, all_top_k_predictions, target_tokens, target_recall):
         targets = target_tokens["tokens"]
         target_mask = get_text_field_mask(target_tokens)
@@ -238,6 +240,9 @@ class Event2Event(Model):
                 )
                 if target_tokens:
                     self._update_recalls(all_top_k_predictions, target_tokens[name], state._recalls)
+                    # also update loss counter
+                    state._xent(output_dict[name+"_loss"])
+                    
                 output_dict["{}_top_k_predictions".format(name)] = all_top_k_predictions
                 output_dict["{}_top_k_log_probabilities".format(name)] = log_probabilities
 
@@ -485,6 +490,9 @@ class Event2Event(Model):
             for name, state in self._states.items():
                 for metric_name, metric in state._recalls.items():
                     all_metrics[name+"_" + metric_name] = metric.get_metric(reset=reset)
+                # also adding cross-entropy
+                all_metrics[name+"_loss"] = state._xent.get_metric(reset=reset)
+
         return all_metrics
 
 
