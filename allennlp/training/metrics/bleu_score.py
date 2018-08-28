@@ -14,7 +14,7 @@ class BleuN(Metric):
     """
     BLEU metric
     """
-    def __init__(self, n: int = 4) -> None:
+    def __init__(self, n: int = 2) -> None:
         self.n = n
         self.weights = [1/n] * n
         self.bl_total = 0.
