@@ -45,8 +45,8 @@ class StateDecoderEarlyFusion:
         
         self._recalls = {}
         for n in event2event.dim_names:
-            # self._recalls[n] = UnigramRecall()
-            self._recalls[n] = BleuN(n=2)
+            self._recalls[n] = UnigramRecall()
+            # self._recalls[n] = BleuN(n=2)
             # self._recalls[n] = RougeN(N=2)
 
 

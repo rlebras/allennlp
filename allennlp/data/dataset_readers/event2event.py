@@ -86,6 +86,7 @@ class Event2EventDatasetReader(DatasetReader):
                 source_sequence = line_dict["event"]
 
                 # ["oEffect", "oReact", "oWant", "xAttr" , "xEffect", "xIntent", "xNeed", "xReact", "xWant"]
+                # ip_embed()
                 target_indices = range(0, len(self._target_fields))
                 targets = []
                 for field in self._target_fields:
