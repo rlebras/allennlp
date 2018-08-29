@@ -26,12 +26,23 @@
   "vocabulary": {
     "min_count": {"tokens": 2}
   },
-  "train_data_path": "/data/train_small.csv",
-  "validation_data_path": "/data/dev_small.csv",
+  "train_data_path": "/data/train.csv",
+  "validation_data_path": "/data/dev.csv",
   "model": {
-    "type": "event2event",
+    "type": "event2event_splitencodedstate",
     "target_fields": ["oEffect", "oReact", "oWant", "xAttr", "xEffect", "xIntent", "xNeed", "xReact", "xWant"],
-    "decoder_hidden_size": 100,
+    "target_fields_categorization": {
+      "xNeed": "pre",
+      "xIntent": "pre",
+      "xAttr": "pre",
+      'oEffect': "post",
+      'oReact': "post",
+      'oWant': "post",
+      'xEffect': "post",
+      'xReact': "post",
+      'xWant': "post"
+    },
+    "decoder_hidden_size": 100, 
     "source_embedder": {
       "tokens": {
         "type": "embedding",
@@ -44,7 +55,7 @@
     "encoder": {
       "type": "gru",
       "input_size": 300,
-      "hidden_size": 300,
+      "hidden_size": 450,
       "num_layers": 1,
       "bidirectional": true,
       "dropout": 0.2
