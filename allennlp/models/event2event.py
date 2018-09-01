@@ -68,7 +68,7 @@ class Event2Event(Model):
         be specified as ``target_namespace``.
     source_embedder : ``TextFieldEmbedder``, required
         Embedder for source side sequences
-    encoder : ``Seq2SeqEncoder``, required
+    encoder : ``Seq2VecEncoder``, required
         The encoder of the "encoder/decoder" model
     max_decoding_steps : int, required
         Length of decoded sequences
@@ -140,7 +140,7 @@ class Event2Event(Model):
                 empty_target_mask.append([0]*len(target_mask.data[i]))
             else:
                 empty_target_mask.append([1]*len(target_mask.data[i]))
-        empty_target_mask_tsr = torch.cuda.LongTensor(empty_target_mask)
+        empty_target_mask_tsr = torch.tensor(empty_target_mask, device=target_mask.device)
 
         target_mask = target_mask * empty_target_mask_tsr
 
@@ -292,7 +292,7 @@ class Event2Event(Model):
                 empty_target_mask.append([0]*len(target_mask.data[i]))
             else:
                 empty_target_mask.append([1]*len(target_mask.data[i]))
-        empty_target_mask_tsr = torch.cuda.LongTensor(empty_target_mask)
+        empty_target_mask_tsr = torch.tensor(empty_target_mask, device=target_mask.device)
 
         target_mask = target_mask*empty_target_mask_tsr
         loss = self._get_loss(logits, targets, target_mask, batch_average=batch_average_loss)
