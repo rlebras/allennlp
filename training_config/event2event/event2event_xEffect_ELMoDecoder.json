@@ -10,7 +10,7 @@
     "target_tokenizer": {
       "type": "word"
     },
-    "target_fields": ["xWant"],
+    "target_fields": ["xEffect"],
     "source_token_indexers": {
       "tokens": {
         "type": "single_id",
@@ -23,6 +23,9 @@
     "target_token_indexers": {
       "tokens": {
         "namespace": "target_tokens"
+      },
+      "elmo": {
+        "type": "elmo_characters"
       }
     }
   },
@@ -32,8 +35,8 @@
   "train_data_path": "/data/train.csv",
   "validation_data_path": "/data/dev.csv",
   "model": {
-    "type": "event2event",
-    "target_fields": ["xWant"],
+    "type": "event2event_ELMoDecoder",
+    "target_fields": ["xEffect"],
     "source_embedder": {
       "tokens": {
         "type": "embedding",
@@ -49,6 +52,18 @@
         "do_layer_norm": false,
         "dropout": 0.0
       }
+    },
+    "target_embedder": {
+      "elmo": {
+        "type": "elmo_token_embedder",
+        "options_file": "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json",
+        "weight_file": "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5",
+        "do_layer_norm": false,
+        "dropout": 0.0
+      }
+    },
+    "elmo_token_indexers": {
+      "type": "elmo_characters"
     },
     "encoder": {
       "type": "gru",
@@ -73,8 +88,7 @@
     "patience": 10,
     "cuda_device": 0,
     "optimizer": {
-      "type": "adam",
-      "lr": 0.0004
+      "type": "adam"
     }
   }
 }
