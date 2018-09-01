@@ -145,11 +145,14 @@ class Event2EventDatasetReader(DatasetReader):
        return " ".join(retval)
    
     @staticmethod
-    def _preprocess_string_better(tokenizer, string: str) -> str:
-       string = string.lower()\
+    def _preprocess_string_better(tokenizer, string: str, append_period = False) -> str:
+       string = string\
                 .replace("person x","personx")\
+                .replace("Person x","Personx")\
                 .replace("person y","persony")\
-                .replace("person z","personz")
+                .replace("Person y","Persony")\
+                .replace("person z","personz")\
+                .replace("Person z","Personz")
        
        string = string[:-1] if string[-1] in ".,;:=!/&+\\" else string
        
@@ -168,6 +171,9 @@ class Event2EventDatasetReader(DatasetReader):
           retval.append(word)
        if len(retval) == 0:
           retval.append("none")
+       else:
+           if append_period == True:
+              retval.append(".")
        return " ".join(retval)
 
     def _build_target_field(self, target_string: str) -> TextField:
@@ -186,7 +192,7 @@ class Event2EventDatasetReader(DatasetReader):
             source_string: str,
             target_dict = None) -> Instance:  # type: ignore
         # pylint: disable=arguments-differ
-        processed = self._preprocess_string_better(self._source_tokenizer, source_string)
+        processed = self._preprocess_string_better(self._source_tokenizer, source_string, append_period=True)
         tokenized_source = self._source_tokenizer.tokenize(processed)
         if self._source_add_start_token:
             tokenized_source.insert(0, Token(START_SYMBOL))
