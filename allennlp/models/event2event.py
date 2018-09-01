@@ -21,18 +21,245 @@ from allennlp.models.model import Model
 from allennlp.nn.util import get_text_field_mask, sequence_cross_entropy_with_logits, weighted_sum
 from allennlp.training.metrics import UnigramRecall, RougeL, RougeN, BleuN, BatchedAverage
 
+from collections import Counter, OrderedDict
+
 class StateDecoder:
     def __init__(self, name, event2event, num_classes, input_dim, output_dim, metrics):
         self._embedder = Embedding(num_classes, input_dim)
         event2event.add_module("{}_embedder".format(name), self._embedder)
         self._decoder_cell = GRUCell(input_dim, output_dim)
         event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
+        self._output_dim = output_dim
         self._output_projection_layer = Linear(output_dim, num_classes)
         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
         self._recalls = {}
         self._xent = BatchedAverage()
         for m in metrics:
             self._recalls[m] = Metric.by_name(m)()
+
+
+    def _transform_init_state(self,init_hs):
+        """Does nothing"""
+        return init_hs
+    
+    def greedy_search(self, final_encoder_output, target_tokens, # target_embedder,
+                      # decoder_cell, output_projection_layer,
+                      early_fusion=None,
+                      batch_average_loss=True):
+
+        target_embedder = self._embedder
+        decoder_cell = self._decoder_cell
+        output_projection_layer = self._output_projection_layer
+
+        final_encoder_output = self._transform_init_state(final_encoder_output)
+        
+        targets = target_tokens["tokens"]
+        target_sequence_length = targets.size()[1]
+        # The last input from the target is either padding or the end symbol. Either way, we
+        # don't have to process it.
+        # TODO(brendanr): Something about this is suspicious. As in will we
+        # maybe have difficulty learning to output the end symbol? Maybe
+        # it's fine since this will make num_decoding_steps the length of
+        # the longest sequence and most targets will be shorter? Still...
+        num_decoding_steps = target_sequence_length - 1
+
+        decoder_hidden = final_encoder_output
+        step_logits = []
+        for timestep in range(num_decoding_steps):
+            # See https://github.com/allenai/allennlp/issues/1134.
+            # TODO(brendanr): Grok this.
+            input_choices = targets[:, timestep]
+            decoder_input = target_embedder(input_choices)
+            
+            if not early_fusion is None:
+                decoder_input = torch.cat([decoder_input,early_fusion],dim=1)
+
+            decoder_hidden = decoder_cell(decoder_input, decoder_hidden)
+            # (batch_size, num_classes)
+            output_projections = output_projection_layer(decoder_hidden)
+            # list of (batch_size, 1, num_classes)
+            step_logits.append(output_projections.unsqueeze(1))
+        # (batch_size, num_decoding_steps, num_classes)
+        logits = torch.cat(step_logits, 1)
+
+        target_mask = get_text_field_mask(target_tokens)
+
+        empty_target_mask = []
+        for i, t in enumerate(targets.data):
+            if numpy.count_nonzero(t.data) == 2:
+                empty_target_mask.append([0]*len(target_mask.data[i]))
+            else:
+                empty_target_mask.append([1]*len(target_mask.data[i]))
+        empty_target_mask_tsr = torch.cuda.LongTensor(empty_target_mask)
+
+        target_mask = target_mask*empty_target_mask_tsr
+        loss = Event2Event._get_loss(logits, targets, target_mask, batch_average=batch_average_loss)
+        count = (target_mask.sum(1) > 0).sum()
+        return loss, count
+
+    
+    def beam_search(self,
+                    final_encoder_output: torch.LongTensor,
+                    k: int,
+                    num_decoding_steps: int,
+                    batch_size: int,
+                    source_mask,
+                    start_ix,
+                    end_ix,
+                    num_classes,
+                    early_fusion=None) -> Tuple[torch.Tensor, torch.Tensor]:
+
+        final_encoder_output = self._transform_init_state(final_encoder_output)
+        
+        target_embedder = self._embedder
+        decoder_cell = self._decoder_cell
+        output_projection_layer = self._output_projection_layer
+
+        # List of (batchsize, k) tensors. One for each time step. Does not
+        # include the start symbols, which are implicit.
+        predictions = []
+        # TODO(brendanr): Fix this comment.
+        # List of (batchsize, k) tensors. One for each time step. None for
+        # the first.  Stores the index n for the parent prediction, i.e.
+        # predictions[t-1][i][n], that it came from. This is aligned with
+        # predictions so that backpointer[t][i][n] corresponds to
+        # predictions[t][n].
+        backpointers = []
+        # List of (batchsize * k,) tensors.
+        # TODO(brendanr): Just keep last
+        log_probabilities = []
+
+        # Timestep 1
+        start_predictions = source_mask.new_full((batch_size,), fill_value=start_ix)
+        start_decoder_input = target_embedder(start_predictions)
+        if not early_fusion is None:
+            start_decoder_input = torch.cat([start_decoder_input,early_fusion],dim=1)
+        start_decoder_hidden = decoder_cell(start_decoder_input, final_encoder_output)
+        start_output_projections = output_projection_layer(start_decoder_hidden)
+        start_class_log_probabilities = F.log_softmax(start_output_projections, dim=-1)
+        start_top_log_probabilities, start_predicted_classes = start_class_log_probabilities.topk(k)
+
+        # Set starting values
+        # [(batch_size, k)]
+        log_probabilities.append(start_top_log_probabilities)
+        # [(batch_size, k)]
+        predictions.append(start_predicted_classes)
+        # Set the same hidden state for each element in beam.
+        # (batch_size * k, _decoder_output_dim)
+        decoder_hidden = start_decoder_hidden.\
+            unsqueeze(1).expand(batch_size, k, self._output_dim).\
+            reshape(batch_size * k, self._output_dim)
+
+        # Log probability tensor that mandates that the end token is selected.
+        log_probs_after_end = start_class_log_probabilities.new_full(
+            (batch_size * k, num_classes),
+            float("-inf")
+        )
+        log_probs_after_end[:, end_ix] = 0.0
+
+        for timestep in range(num_decoding_steps - 1):
+            # (batch_size * k,)
+            last_predictions = predictions[-1].reshape(batch_size * k)
+            decoder_input = target_embedder(last_predictions)
+            
+            if not early_fusion is None:
+                decoder_input = torch.cat([decoder_input,torch.cat([early_fusion]*k)],dim=1)
+            
+            # reshape(batch_size * k, self._output_dim)
+            decoder_hidden = decoder_cell(decoder_input, decoder_hidden)
+            # (batch_size * k, num_classes)
+            output_projections = output_projection_layer(decoder_hidden)
+
+            # (batch_size * k, num_classes)
+            class_log_probabilities = F.log_softmax(output_projections, dim=-1)
+
+            # (batch_size * k, num_classes)
+            last_predictions_expanded = last_predictions.unsqueeze(-1).expand(batch_size * k, num_classes)
+            cleaned_log_probabilities = torch.where(
+                last_predictions_expanded == end_ix,
+                log_probs_after_end,
+                class_log_probabilities
+            )
+
+            # (batch_size * k, k), (batch_size * k, k)
+            top_log_probabilities, predicted_classes = cleaned_log_probabilities.topk(k)
+            # TODO(brendanr): Normalize for length?
+            # (batch_size * k, k)
+            expanded_last_log_probabilities = log_probabilities[-1].\
+                unsqueeze(2).\
+                expand(batch_size, k, k).\
+                reshape(batch_size * k, k)
+            summed_top_log_probabilities = top_log_probabilities + expanded_last_log_probabilities
+
+            reshaped_top_log_probabilities = summed_top_log_probabilities.reshape(batch_size, k * k)
+            reshaped_predicted_classes = predicted_classes.reshape(batch_size, k * k)
+            restricted_beam_log_probs, restricted_beam_indices = reshaped_top_log_probabilities.topk(k)
+            # TODO(brendanr): Something about this is weird. Why do restricted_predicted_classes == restricted_beam_indices?
+            restricted_predicted_classes = reshaped_predicted_classes.gather(1, restricted_beam_indices)
+
+            log_probabilities.append(restricted_beam_log_probs)
+            predictions.append(restricted_predicted_classes)
+            backpointer = restricted_beam_indices / k
+            backpointers.append(backpointer)
+            expanded_backpointer = backpointer.unsqueeze(2).expand(batch_size, k, self._output_dim)
+            decoder_hidden = decoder_hidden.\
+                    reshape(batch_size, k, self._output_dim).\
+                    gather(1, expanded_backpointer).\
+                    reshape(batch_size * k, self._output_dim)
+
+        if len(predictions) != num_decoding_steps:
+            raise RuntimeError("len(predictions) not equal to num_decoding_steps")
+
+        if len(backpointers) != num_decoding_steps - 1:
+            raise RuntimeError("len(backpointers) not equal to num_decoding_steps")
+
+        # Reconstruct the sequences.
+        reconstructed_predictions = [predictions[num_decoding_steps - 1].unsqueeze(2)]
+        if num_decoding_steps > 1:
+            cur_backpointers = backpointers[num_decoding_steps - 2]
+            for timestep in range(num_decoding_steps - 2, 0, -1):
+                cur_preds = predictions[timestep].gather(1, cur_backpointers).unsqueeze(2)
+                reconstructed_predictions.append(cur_preds)
+                cur_backpointers = backpointers[timestep - 1].gather(1, cur_backpointers)
+            final_preds = predictions[0].gather(1, cur_backpointers).unsqueeze(2)
+            reconstructed_predictions.append(final_preds)
+            # We don't add the start tokens here. They are implicit.
+
+        all_predictions = torch.cat(list(reversed(reconstructed_predictions)), 2)
+        return (all_predictions, log_probabilities[-1])
+
+            
+class StateDecoderLinear(StateDecoder):
+    def __init__(self, name, event2event, num_classes, input_dim,
+                 init_dim, output_dim, metrics, slices=None):
+        self._name = name
+        self._embedder = Embedding(num_classes, input_dim)
+        event2event.add_module("{}_embedder".format(name), self._embedder)
+
+        self._init_projection = Linear(init_dim, output_dim)
+        event2event.add_module("{}_init_project".format(name), self._init_projection)
+        
+        self._decoder_cell = GRUCell(input_dim, output_dim)
+        event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
+        self._output_dim = output_dim
+        self._output_projection_layer = Linear(output_dim, num_classes)
+        event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
+        self._recalls = {}
+        self._xent = BatchedAverage()
+        for m in metrics:
+            self._recalls[m] = Metric.by_name(m)()
+            
+        self.slices = slices
+    
+    def _transform_init_state(self,init_hs):
+        if self.slices:
+            init_hs_ = init_hs[:,self.slices[0]:self.slices[1]]
+        else:
+            init_hs_ = init_hs
+        init_hs__ = self._init_projection(init_hs_)
+        return init_hs__
+
+        
         
 class StateDecoderEarlyFusion:
     """ Input dim of RNN is word_emb_dim + numgroups"""
@@ -41,6 +268,7 @@ class StateDecoderEarlyFusion:
         event2event.add_module("{}_embedder".format(name), self._embedder)
         self._decoder_cell = GRUCell(input_dim + ef_dim, output_dim)
         event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
+        self._output_dim = output_dim
         self._output_projection_layer = Linear(output_dim, num_classes)
         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
         
@@ -86,6 +314,7 @@ class Event2Event(Model):
                  encoder: Seq2VecEncoder,
                  max_decoding_steps: int,
                  target_namespace: str = "tokens",
+                 decoder_hidden_size: int = None,
                  target_embedding_dim: int = None,
                  target_fields = None,
                  metrics = None) -> None:
@@ -105,30 +334,23 @@ class Event2Event(Model):
         num_classes = self.vocab.get_vocab_size(self._target_namespace)
         # Decoder output dim needs to be the same as the encoder output dim since we initialize the
         # hidden state of the decoder with that of the final hidden states of the encoder.
-        self._decoder_output_dim = self._encoder.get_output_dim()
+        self._encoder_output_dim = self._encoder.get_output_dim()
+        self._decoder_output_dim = decoder_hidden_size or self._encoder_output_dim
         target_embedding_dim = target_embedding_dim or self._source_embedder.get_output_dim()
 
         self._states: Dict[str, Event2Event.StateDecoder] = {}
         for field in self._target_fields:
-            self._states[field] = StateDecoder(
-                    field,
-                    self,
-                    num_classes,
-                    target_embedding_dim,
-                    self._decoder_output_dim,
-                    metrics
+            # self._states[field] = StateDecoder(
+            #     name=field, event2event=self, num_classes=num_classes,
+            #     input_dim=target_embedding_dim, output_dim=self._decoder_output_dim,
+            #     metrics=metrics
+            # )
+            self._states[field] = StateDecoderLinear(
+                name=field, event2event=self, num_classes=num_classes,
+                input_dim=target_embedding_dim, init_dim=self._encoder_output_dim,
+                output_dim=self._decoder_output_dim,
+                metrics=metrics
             )
-
-    # class StateDecoder:
-    #     def __init__(self, name, event2event, num_classes, input_dim, output_dim):
-    #         self._embedder = Embedding(num_classes, input_dim)
-    #         event2event.add_module("{}_embedder".format(name), self._embedder)
-    #         self._decoder_cell = GRUCell(input_dim, output_dim)
-    #         event2event.add_module("{}_decoder_cell".format(name), self._decoder_cell)
-    #         self._output_projection_layer = Linear(output_dim, num_classes)
-    #         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
-    #         self._recall = UnigramRecall()
-
     
     def _update_recall(self, all_top_k_predictions, target_tokens, target_recall):
         targets = target_tokens["tokens"]
@@ -207,13 +429,17 @@ class Event2Event(Model):
             loss_count = 0
 
             for name, state in self._states.items():
-                loss, count = self.greedy_search(
-                        final_encoder_output,
-                        target_tokens[name],
-                        state._embedder,
-                        state._decoder_cell,
-                        state._output_projection_layer
-                )
+
+                # loss, count = self.greedy_search(
+                #     final_encoder_output,
+                #     target_tokens[name],
+                #     state._embedder,
+                #     state._decoder_cell,
+                #     state._output_projection_layer
+                # )
+                loss, count = state.greedy_search(
+                    final_encoder_output,target_tokens[name])
+                
                 # total xent over non-zero targets
                 output_dict["{}_loss".format(name)] = loss * count.float()
                 output_dict["{}_count".format(name)] = count
@@ -231,16 +457,22 @@ class Event2Event(Model):
         if not self.training:
             for name, state in self._states.items():
                 # (batch_size, k, num_decoding_steps)
-                (all_top_k_predictions, log_probabilities) = self.beam_search(
-                        final_encoder_output,
-                        10,
-                        self._get_num_decoding_steps(target_tokens.get(name)),
-                        batch_size,
-                        source_mask,
-                        state._embedder,
-                        state._decoder_cell,
-                        state._output_projection_layer
-                )
+                
+                # (all_top_k_predictions, log_probabilities) = self.beam_search(
+                #         final_encoder_output_,
+                #         10,
+                #         self._get_num_decoding_steps(target_tokens.get(name)),
+                #         batch_size,
+                #         source_mask,
+                #         state._embedder,
+                #         state._decoder_cell,
+                #         state._output_projection_layer
+                # )
+                (all_top_k_predictions, log_probabilities) = state.beam_search(
+                    final_encoder_output,10,self._get_num_decoding_steps(target_tokens.get(name)),
+                    batch_size,source_mask,self._start_index, self._end_index,
+                    self.vocab.get_vocab_size(self._target_namespace))
+                
                 if target_tokens:
                     self._update_recalls(all_top_k_predictions, target_tokens[name], state._recalls)
                     # also update loss counter
@@ -754,3 +986,98 @@ class Event2Event_wDimGroups(Event2Event):
             output_dict["{}_top_k_predicted_tokens".format(name)] = [self.decode_all(top_k_predicted_indices)]
             
         return output_dict
+
+
+@Model.register("event2event_splitencodedstate")
+class Event2Event_SplitEncodedState(Event2Event):
+    """
+    This ``Event2EventSharedRep`` class is a :class:`Model` which takes an event
+    sequence, encodes it, and then uses the encoded representation to decode
+    several mental state sequences.
+
+    See: https://www.semanticscholar.org/paper/Event2Mind/b89f8a9b2192a8f2018eead6b135ed30a1f2144d
+
+    Parameters
+    ----------
+    vocab : ``Vocabulary``, required
+        Vocabulary containing source and target vocabularies. They may be under the same namespace
+        (``tokens``) or the target tokens can have a different namespace, in which case it needs to
+        be specified as ``target_namespace``.
+    source_embedder : ``TextFieldEmbedder``, required
+        Embedder for source side sequences
+    encoder : ``Seq2SeqEncoder``, required
+        The encoder of the "encoder/decoder" model
+    max_decoding_steps : int, required
+        Length of decoded sequences
+    target_namespace : str, optional (default = 'tokens')
+        If the target side vocabulary is different from the source side's, you need to specify the
+        target's namespace here. If not, we'll assume it is "tokens", which is also the default
+        choice for the source side, and this might cause them to share vocabularies.
+    target_embedding_dim : int, optional (default = source_embedding_dim)
+        You can specify an embedding dimensionality for the target side. If not, we'll use the same
+        value as the source embedder's.
+    """
+    def __init__(self,
+                 vocab: Vocabulary,
+                 source_embedder: TextFieldEmbedder,
+                 encoder: Seq2VecEncoder,
+                 max_decoding_steps: int,
+                 target_namespace: str = "tokens",
+                 target_embedding_dim: int = None,
+                 decoder_hidden_size: int = None,
+                 target_fields = None,
+                 target_fields_categorization = None,
+                 metrics = None) -> None:
+        super(Event2Event, self).__init__(vocab)
+        # TODO(brendanr): Hack the embeddings here like initWEmb in modeling/utils/preprocess.py?
+        self._source_embedder = source_embedder
+        self._encoder = encoder
+        self._max_decoding_steps = max_decoding_steps
+        self._target_namespace = target_namespace
+        self._embedding_dropout = nn.Dropout(0.2)
+        self._target_fields = target_fields
+
+        # We need the start symbol to provide as the input at the first timestep of decoding, and
+        # end symbol as a way to indicate the end of the decoded sequence.
+        self._start_index = self.vocab.get_token_index(START_SYMBOL, self._target_namespace)
+        self._end_index = self.vocab.get_token_index(END_SYMBOL, self._target_namespace)
+        num_classes = self.vocab.get_vocab_size(self._target_namespace)
+        # Decoder output dim to be the same as the encoder output dim since we initialize the
+        # hidden state of the decoder with that of the final hidden states of the encoder.
+        self._encoder_output_dim = self._encoder.get_output_dim()
+        self._decoder_output_dim = decoder_hidden_size or self._encoder_output_dim
+        target_embedding_dim = target_embedding_dim or self._source_embedder.get_output_dim()
+
+        self._states: Dict[str, Event2Event.StateDecoder] = {}
+        self._states_assignments = target_fields_categorization.as_dict(quiet=True)
+
+        # {
+        #     "xNeed": "pre",
+        #     "xIntent": "pre",
+        #     "xAttr": "pre",
+        #     'oEffect': "post",
+        #     'oReact': "post",
+        #     'oWant': "post",
+        #     'xEffect': "post",
+        #     'xReact': "post",
+        #     'xWant': "post"
+        # }
+        count = Counter(self._states_assignments.values())
+        
+        self._dim_splits = OrderedDict()
+        offset = 0
+        for i, (cat, c) in enumerate(count.items()):
+            dim_size = int(self._encoder_output_dim * c / len(self._states_assignments))
+            self._dim_splits[cat] = [offset, dim_size+offset]
+            offset += dim_size
+        
+        for field in self._target_fields:
+            b,e = self._dim_splits[self._states_assignments[field]]
+            init_dim = e-b
+            self._states[field] = StateDecoderLinear(
+                name=field, event2event=self, num_classes=num_classes,
+                input_dim=target_embedding_dim, init_dim=init_dim,
+                output_dim=self._decoder_output_dim,
+                metrics=metrics, slices=(b,e)
+            )
+
