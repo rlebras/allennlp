@@ -1,6 +1,6 @@
 {
   "dataset_reader": {
-    "type": "event2event",
+    "type": "event2event_targetDomains",
     "source_tokenizer": {
       "type": "word",
       "word_splitter": {
@@ -23,19 +23,16 @@
     "target_token_indexers": {
       "tokens": {
         "namespace": "target_tokens"
-      },
-      "elmo": {
-        "type": "elmo_characters"
       }
     }
   },
   "vocabulary": {
     "min_count": {"tokens": 2}
   },
-  "train_data_path": "/Users/ronanlb/ai2/alexandria/commonsensegraph/data/event2event_data/v1_smaller/train.csv",
-  "validation_data_path": "/Users/ronanlb/ai2/alexandria/commonsensegraph/data/event2event_data/v1_smaller/dev.csv",
+  "train_data_path": "/Users/ronanlb/ai2/alexandria/commonsensegraph/data/event2event_data/v2/train.csv",
+  "validation_data_path": "/Users/ronanlb/ai2/alexandria/commonsensegraph/data/event2event_data/v2/dev.csv",
   "model": {
-    "type": "event2event_ELMoDecoder",
+    "type": "event2event",
     "target_fields": ["oEffect", "oReact", "oWant", "xAttr", "xEffect", "xIntent", "xNeed", "xReact", "xWant"],
     "source_embedder": {
       "tokens": {
@@ -53,18 +50,6 @@
         "dropout": 0.0
       }
     },
-    "target_embedder": {
-      "elmo": {
-        "type": "elmo_token_embedder",
-        "options_file": "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_options.json",
-        "weight_file": "https://s3-us-west-2.amazonaws.com/allennlp/models/elmo/2x4096_512_2048cnn_2xhighway/elmo_2x4096_512_2048cnn_2xhighway_weights.hdf5",
-        "do_layer_norm": false,
-        "dropout": 0.0
-      }
-    },
-    "elmo_token_indexers": {
-      "type": "elmo_characters"
-    },
     "encoder": {
       "type": "gru",
       "input_size": 1324,
@@ -75,7 +60,7 @@
     },
     "max_decoding_steps": 10,
     "target_namespace": "target_tokens",
-    "metrics": ["unigram_recall", "bleu_n", "rouge_l"]
+    "metrics": ["unigram_recall"]
   },
   "iterator": {
     "type": "bucket",

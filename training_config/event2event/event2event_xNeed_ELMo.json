@@ -1,6 +1,6 @@
 {
   "dataset_reader": {
-    "type": "event2event",
+    "type": "event2event_targetDomains",
     "source_tokenizer": {
       "type": "word",
       "word_splitter": {

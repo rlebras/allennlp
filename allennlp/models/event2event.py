@@ -33,10 +33,18 @@ class StateDecoder:
         self._output_projection_layer = Linear(output_dim, num_classes)
         event2event.add_module("{}_output_project_layer".format(name), self._output_projection_layer)
         self._recalls = {}
-        self._xent = BatchedAverage()
-        for m in metrics:
-            self._recalls[m] = Metric.by_name(m)()
+        #self._xent = BatchedAverage()
+        #for m in metrics:
+        #    # WARNING!!!
+        #    if m == "unigram_recall":
+        #        self._recalls[m] = Metric.by_name(m)()
 
+        self._bleu = BleuN(n=2)
+        #self._bleu1 = BleuN(n=1)
+        #self._bleu4 = BleuN(n=4)
+        #self._rouge = RougeL()
+        #self._rouge0 = RougeL(alpha=0.)
+        #self._rouge1 = RougeL(alpha=1.)
 
     def _transform_init_state(self,init_hs):
         """Does nothing"""
@@ -90,7 +98,7 @@ class StateDecoder:
                 empty_target_mask.append([0]*len(target_mask.data[i]))
             else:
                 empty_target_mask.append([1]*len(target_mask.data[i]))
-        empty_target_mask_tsr = torch.cuda.LongTensor(empty_target_mask)
+        empty_target_mask_tsr = torch.tensor(empty_target_mask, device=target_mask.device)
 
         target_mask = target_mask*empty_target_mask_tsr
         loss = Event2Event._get_loss(logits, targets, target_mask, batch_average=batch_average_loss)
@@ -248,7 +256,9 @@ class StateDecoderLinear(StateDecoder):
         self._xent = BatchedAverage()
         for m in metrics:
             self._recalls[m] = Metric.by_name(m)()
-            
+
+        self._bleu = BatchedAverage()
+        self._rouge = BatchedAverage()
         self.slices = slices
     
     def _transform_init_state(self,init_hs):
@@ -327,11 +337,13 @@ class Event2Event(Model):
         self._embedding_dropout = nn.Dropout(0.2)
         self._target_fields = target_fields
 
+        print("vocab: ", vocab)
         # We need the start symbol to provide as the input at the first timestep of decoding, and
         # end symbol as a way to indicate the end of the decoded sequence.
         self._start_index = self.vocab.get_token_index(START_SYMBOL, self._target_namespace)
         self._end_index = self.vocab.get_token_index(END_SYMBOL, self._target_namespace)
         num_classes = self.vocab.get_vocab_size(self._target_namespace)
+        print("num classes: ", self.vocab.get_vocab_size(self._target_namespace))
         # Decoder output dim needs to be the same as the encoder output dim since we initialize the
         # hidden state of the decoder with that of the final hidden states of the encoder.
         self._encoder_output_dim = self._encoder.get_output_dim()
@@ -340,17 +352,17 @@ class Event2Event(Model):
 
         self._states: Dict[str, Event2Event.StateDecoder] = {}
         for field in self._target_fields:
-            # self._states[field] = StateDecoder(
-            #     name=field, event2event=self, num_classes=num_classes,
-            #     input_dim=target_embedding_dim, output_dim=self._decoder_output_dim,
-            #     metrics=metrics
-            # )
-            self._states[field] = StateDecoderLinear(
-                name=field, event2event=self, num_classes=num_classes,
-                input_dim=target_embedding_dim, init_dim=self._encoder_output_dim,
-                output_dim=self._decoder_output_dim,
-                metrics=metrics
+            self._states[field] = StateDecoder(
+                 name=field, event2event=self, num_classes=num_classes,
+                 input_dim=target_embedding_dim, output_dim=self._decoder_output_dim,
+                 metrics=metrics
             )
+            #self._states[field] = StateDecoderLinear(
+            #    name=field, event2event=self, num_classes=num_classes,
+            #    input_dim=target_embedding_dim, init_dim=self._encoder_output_dim,
+            #    output_dim=self._decoder_output_dim,
+            #    metrics=metrics
+            #)
     
     def _update_recall(self, all_top_k_predictions, target_tokens, target_recall):
         targets = target_tokens["tokens"]
@@ -391,6 +403,7 @@ class Event2Event(Model):
         else:
             return self._max_decoding_steps
 
+
     @overrides
     def forward(self,  # type: ignore
                 source: Dict[str, torch.LongTensor],
@@ -414,17 +427,19 @@ class Event2Event(Model):
         batch_size, _, _ = embedded_input.size()
         source_mask = get_text_field_mask(source)
 
+        print("num classes: ", self.vocab.get_vocab_size(self._target_namespace))
+
         # (batch_size, encoder_output_dim)
         final_encoder_output = self._encoder(embedded_input, source_mask)
         output_dict = {}
 
         # Perform greedy search so we can get the loss.
         if target_tokens:
-            if target_tokens.keys() != self._states.keys():
-                target_only = target_tokens.keys() - self._states.keys()
-                states_only = self._states.keys() - target_tokens.keys()
-                raise Exception("Mismatch between target_tokens and self._states. Keys in " +
-                        "targets only: {} Keys in states only: {}".format(target_only, states_only))
+            #if target_tokens.keys() != self._states.keys():
+            #    target_only = target_tokens.keys() - self._states.keys()
+            #    states_only = self._states.keys() - target_tokens.keys()
+            #    raise Exception("Mismatch between target_tokens and self._states. Keys in " +
+            #            "targets only: {} Keys in states only: {}".format(target_only, states_only))
             total_loss = 0
             loss_count = 0
 
@@ -469,15 +484,28 @@ class Event2Event(Model):
                 #         state._output_projection_layer
                 # )
                 (all_top_k_predictions, log_probabilities) = state.beam_search(
-                    final_encoder_output,10,self._get_num_decoding_steps(target_tokens.get(name)),
-                    batch_size,source_mask,self._start_index, self._end_index,
+                    final_encoder_output,
+                    10,
+                    self._max_decoding_steps,
+                    batch_size,
+                    source_mask,
+                    self._start_index,
+                    self._end_index,
                     self.vocab.get_vocab_size(self._target_namespace))
                 
                 if target_tokens:
                     self._update_recalls(all_top_k_predictions, target_tokens[name], state._recalls)
                     # also update loss counter
-                    state._xent(output_dict[name+"_loss"],output_dict[name+"_count"])
-                    
+                    #state._xent(output_dict[name+"_loss"],output_dict[name+"_count"])
+                    refs = target_tokens[name + "_dom"]["tokens"][:, :, 1:].contiguous()
+                    for pred in all_top_k_predictions:
+                        state._bleu(refs, pred, mask = None, end_index = self._end_index, dont_count_empty_predictions = True)
+                        #state._bleu1(refs, pred, mask = None, end_index = self._end_index, dont_count_empty_predictions = True)
+                        #state._bleu4(refs, pred, mask = None, end_index = self._end_index, dont_count_empty_predictions = True)
+                        #state._rouge(refs, pred, mask = None, end_index = self._end_index, dont_count_empty_predictions = True)
+                        #state._rouge0(refs, pred, mask=None, end_index=self._end_index, dont_count_empty_predictions=True)
+                        #state._rouge1(refs, pred, mask=None, end_index=self._end_index, dont_count_empty_predictions=True)
+
                 output_dict["{}_top_k_predictions".format(name)] = all_top_k_predictions
                 output_dict["{}_top_k_log_probabilities".format(name)] = log_probabilities
 
@@ -730,7 +758,13 @@ class Event2Event(Model):
                 for metric_name, metric in state._recalls.items():
                     all_metrics[name+"_" + metric_name] = metric.get_metric(reset=reset)
                 # also adding cross-entropy
-                all_metrics[name+"_loss"] = state._xent.get_metric(reset=reset)
+                #all_metrics[name+"_loss"] = state._xent.get_metric(reset=reset)
+                all_metrics[name+"_bleu"] = state._bleu.get_metric(reset=reset)
+                #all_metrics[name+"_bleu1"] = state._bleu1.get_metric(reset=reset)
+                #all_metrics[name+"_bleu4"] = state._bleu4.get_metric(reset=reset)
+                #all_metrics[name+"_rouge"] = state._rouge.get_metric(reset=reset)
+                #all_metrics[name+"_rouge0"] = state._rouge0.get_metric(reset=reset)
+                #all_metrics[name+"_rouge1"] = state._rouge1.get_metric(reset=reset)
 
         return all_metrics
 

@@ -16,6 +16,7 @@ from allennlp.data.dataset_readers.coreference_resolution import ConllCorefReade
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.dataset_readers.event2mind import Event2MindDatasetReader
 from allennlp.data.dataset_readers.event2event import Event2EventDatasetReader
+from allennlp.data.dataset_readers.transformer_finetune_rocstories_reader import TransformerFinetuneRocstoriesReader
 from allennlp.data.dataset_readers.language_modeling import LanguageModelingReader
 from allennlp.data.dataset_readers.nlvr import NlvrDatasetReader
 from allennlp.data.dataset_readers.penn_tree_bank import PennTreeBankConstituencySpanDatasetReader

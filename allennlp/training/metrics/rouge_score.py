@@ -30,7 +30,8 @@ class RougeL(Metric):
                  predictions: torch.Tensor,
                  gold_labels: torch.Tensor,
                  mask: Optional[torch.Tensor] = None,
-                 end_index: int = sys.maxsize):
+                 end_index: int = sys.maxsize,
+                 dont_count_empty_predictions = False):
         """
         Parameters
         ----------
@@ -64,11 +65,17 @@ class RougeL(Metric):
                 masked_gold = cur_gold
                 masked_beams = beams
                 
-            cleaned_gold = [x for x in masked_gold if x != 0 and x != end_index]
-            cleaned_beams = [[x for x in b if x != 0 and x != end_index]
+            cleaned_gold = [x.item() for x in masked_gold if x.item() != 0 and x.item() != end_index]
+            cleaned_beams = [[x.item() for x in b if x.item() != 0 and x.item() != end_index]
                              for b in masked_beams]
-            rg = self._scoring_f(cleaned_gold,cleaned_beams)
-            rg_scores.append(rg)
+            if dont_count_empty_predictions:
+                all_empty = all(x == [] for x in cleaned_beams)
+                if not all_empty:
+                    rg = self._scoring_f(cleaned_gold, cleaned_beams)
+                    rg_scores.append(rg)
+            else:
+                rg = self._scoring_f(cleaned_gold,cleaned_beams)
+                rg_scores.append(rg)
         self.rg_total += sum(rg_scores)
         self.count += len(rg_scores)
 
@@ -78,7 +85,10 @@ class RougeL(Metric):
         -------
         The accumulated rouge score.
         """
-        rouge = float(self.rg_total) / float(self.count)
+        if self.count != 0:
+            rouge = float(self.rg_total) / float(self.count)
+        else:
+            rouge = 0.
         if reset:
             self.reset()
         return rouge

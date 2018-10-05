@@ -3,8 +3,12 @@ import torch
 from typing import Optional
 from overrides import overrides
 from allennlp.common.checks import ConfigurationError
+
+from allennlp.data.tokenizers.token import Token
+from allennlp.common.util import START_SYMBOL, END_SYMBOL
 from allennlp.training.metrics.metric import Metric
 
+from nltk.translate.bleu_score import SmoothingFunction
 from nltk import bleu
 
 from IPython import embed as ip_embed
@@ -21,13 +25,14 @@ class BleuN(Metric):
         self.count = 0
 
     def _scoring_f(self, hyp, refs):
-        return bleu(refs,hyp,weights=self.weights)
+        return bleu(refs,hyp,weights=self.weights,smoothing_function=SmoothingFunction().method1)
     
     def __call__(self,
                  predictions: torch.Tensor,
                  gold_labels: torch.Tensor,
                  mask: Optional[torch.Tensor] = None,
-                 end_index: int = sys.maxsize):
+                 end_index: int = sys.maxsize,
+                 dont_count_empty_predictions = False):
         """
         Parameters
         ----------
@@ -52,7 +57,7 @@ class BleuN(Metric):
         batch_size = predictions.size()[0]
         
         bl_scores = []
-        
+
         for i, (beams, cur_gold) in enumerate(zip(predictions,gold_labels)):
             if mask is not None:
                 masked_gold = cur_gold * mask[i]
@@ -62,12 +67,21 @@ class BleuN(Metric):
                 masked_beams = beams
 
             # HACK: turn tensors into strings cause nltk.bleu() doesn't work with tensors (only str or int)
-            cleaned_gold = [str(x) for x in masked_gold if x != 0 and x != end_index]
-            cleaned_beams = [[str(x) for x in b if x != 0 and x != end_index]
+            cleaned_gold = [str(x.item()) for x in masked_gold if x.item() != 0 and x.item() != end_index]
+            cleaned_beams = [[str(x.item()) for x in b if x.item() != 0 and x.item() != end_index]
                              for b in masked_beams]
-            bl = self._scoring_f(cleaned_gold,cleaned_beams)
-            bl_scores.append(bl)
-            
+            #print("cleaned_gold: ", cleaned_gold)
+            #print("cleaned_beams: ", cleaned_beams)
+            if dont_count_empty_predictions:
+                all_empty = all(x == [] for x in cleaned_beams)
+                if not all_empty:
+                    bl = self._scoring_f(cleaned_gold, cleaned_beams)
+                    bl_scores.append(bl)
+            else:
+                bl = self._scoring_f(cleaned_gold,cleaned_beams)
+                bl_scores.append(bl)
+
+        #raise Exception('STOP!')
         self.bl_total += sum(bl_scores)
         self.count += len(bl_scores)
 
@@ -75,9 +89,12 @@ class BleuN(Metric):
         """
         Returns
         -------
-        The accumulated rouge score.
+        The accumulated bleu score.
         """
-        bleu_score = float(self.bl_total) / float(self.count)
+        if self.count != 0:
+            bleu_score = float(self.bl_total) / float(self.count)
+        else:
+            bleu_score = 0.
         if reset:
             self.reset()
         return bleu_score
