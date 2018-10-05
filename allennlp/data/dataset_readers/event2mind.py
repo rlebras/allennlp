@@ -24,7 +24,11 @@ class Event2MindDatasetReader(DatasetReader):
     This dataset is CSV and has the columns:
     Source,Event,Xintent,Xemotion,Otheremotion,Xsent,Osent
 
-    The Xintent, Xemotion, and Otheremotion columns are JSON arrays.
+    Source is the provenance of the given instance. Event is free-form English
+    text. The Xintent, Xemotion, and Otheremotion columns are JSON arrays
+    containing the intention of "person x", the reaction to the event by
+    "person x" and the reaction to the event by others. The remaining columns
+    are not used.
 
     For instance:
     rocstory,PersonX talks to PersonX's mother,"[""to keep in touch""]","[""accomplished""]","[""loved""]",5.0,5.0
@@ -70,10 +74,10 @@ class Event2MindDatasetReader(DatasetReader):
             logger.info("Reading instances from lines in file at: %s", file_path)
             reader = csv.reader(data_file)
             # Skip header
-            reader.__next__()
+            next(reader) # pylint: disable=stop-iteration-return
 
             for (line_num, line_parts) in enumerate(reader):
-                if len(line_parts) != 7 and len(line_parts) != 5:
+                if len(line_parts) != 7:
                     line = ','.join([str(s) for s in line_parts])
                     raise ConfigurationError("Invalid line format: %s (line number %d)" % (line, line_num + 1))
                 source_sequence = line_parts[1]
@@ -85,42 +89,47 @@ class Event2MindDatasetReader(DatasetReader):
                         for oreact in oreacts:
                             yield self.text_to_instance(source_sequence, xintent, xreact, oreact)
 
-    """
-    See https://github.com/maartensap/event2mind-internal/blob/master/code/modeling/utils/preprocess.py#L80.
-    """
     @staticmethod
     def _preprocess_string(tokenizer, string: str) -> str:
-       word_tokens = tokenizer.tokenize(string.lower())
-       words = [token.text for token in word_tokens]
-       if "person y" in string.lower():
-          #tokenize the string, reformat PersonY if mentioned for consistency
-          ws = []
-          skip = False
-          for i in range(0, len(words)-1):
-             # TODO(brendanr): Why not handle person x too?
-             if words[i] == "person" and words[i+1] == "y":
-                ws.append("persony")
-                skip = True
-             elif skip:
-                skip = False
-             else:
-                ws.append(words[i])
-          if not skip:
-             ws.append(words[-1])
-          words = ws
-       # get rid of "to" or "to be" prepended to annotations
-       retval = []
-       first = 0
-       for word in words:
-          first += 1
-          if word == "to" and first == 1:
-             continue
-          if word == "be" and first < 3:
-             continue
-          retval.append(word)
-       if len(retval) == 0:
-          retval.append("none")
-       return " ".join(retval)
+        """
+        Ad-hoc preprocessing code borrowed directly from the original implementation.
+
+        It performs the following operations:
+        1. Fuses "person y" into "persony".
+        2. Removes "to" and "to be" from the start of the string.
+        3. Converts empty strings into the string literal "none".
+        """
+        word_tokens = tokenizer.tokenize(string.lower())
+        words = [token.text for token in word_tokens]
+        if "person y" in string.lower():
+            #tokenize the string, reformat PersonY if mentioned for consistency
+            words_with_persony = []
+            skip = False
+            for i in range(0, len(words)-1):
+                # TODO(brendanr): Why not handle person x too?
+                if words[i] == "person" and words[i+1] == "y":
+                    words_with_persony.append("persony")
+                    skip = True
+                elif skip:
+                    skip = False
+                else:
+                    words_with_persony.append(words[i])
+            if not skip:
+                words_with_persony.append(words[-1])
+            words = words_with_persony
+        # get rid of "to" or "to be" prepended to annotations
+        retval = []
+        first = 0
+        for word in words:
+            first += 1
+            if word == "to" and first == 1:
+                continue
+            if word == "be" and first < 3:
+                continue
+            retval.append(word)
+        if not retval:
+            retval.append("none")
+        return " ".join(retval)
 
     def _build_target_field(self, target_string: str) -> TextField:
         processed = self._preprocess_string(self._target_tokenizer, target_string)
@@ -130,12 +139,11 @@ class Event2MindDatasetReader(DatasetReader):
         return TextField(tokenized_target, self._target_token_indexers)
 
     @overrides
-    def text_to_instance(
-            self,
-            source_string: str,
-            xintent_string: str = None,
-            xreact_string: str = None,
-            oreact_string: str = None) -> Instance:  # type: ignore
+    def text_to_instance(self,  # type: ignore
+                         source_string: str,
+                         xintent_string: str = None,
+                         xreact_string: str = None,
+                         oreact_string: str = None) -> Instance:
         # pylint: disable=arguments-differ
         processed = self._preprocess_string(self._source_tokenizer, source_string)
         tokenized_source = self._source_tokenizer.tokenize(processed)
@@ -149,10 +157,10 @@ class Event2MindDatasetReader(DatasetReader):
             if oreact_string is None:
                 raise Exception("missing oreact")
             return Instance({
-                "source": source_field,
-                "xintent": self._build_target_field(xintent_string),
-                "xreact": self._build_target_field(xreact_string),
-                "oreact": self._build_target_field(oreact_string),
-                })
+                    "source": source_field,
+                    "xintent": self._build_target_field(xintent_string),
+                    "xreact": self._build_target_field(xreact_string),
+                    "oreact": self._build_target_field(oreact_string),
+            })
         else:
             return Instance({'source': source_field})
