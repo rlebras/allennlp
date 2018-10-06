@@ -1,0 +1,61 @@
+{
+  "dataset_reader": {
+    "type": "transformer_finetune_rocstories_reader",
+    "tokenizer": {
+      "type": "word",
+      "word_splitter": "simple"
+    },
+    "token_indexers": {
+      "openai_transformer": {
+        "type": "openai_transformer_finetune_byte_pair",
+        "model_path": "https://s3-us-west-2.amazonaws.com/allennlp/models/openai-transformer-lm-2018.07.23.tar.gz"
+      }
+    }
+  },
+  "train_data_path": "/Users/ronanlb/ai2/alexandria/abductive/abductive-nli/data/original/rocstories/train.jsonl",
+  "validation_data_path": "/Users/ronanlb/ai2/alexandria/abductive/abductive-nli/data/original/rocstories/valid.jsonl",
+  "test_data_path": "/Users/ronanlb/ai2/alexandria/abductive/abductive-nli/data/original/rocstories/test.jsonl",
+  "evaluate_on_test": true,
+  "model": {
+    "type": "transformer_finetuner",
+    "text_field_embedder": {
+      "allow_unmatched_keys": true,
+      "embedder_to_indexer_map": {
+        "openai_transformer": ["openai_transformer", "openai_transformer-offsets"]
+      },
+      "openai_transformer": {
+        "type": "openai_transformer_embedder",
+        "transformer": {
+          "model_path": "https://s3-us-west-2.amazonaws.com/allennlp/models/openai-transformer-lm-2018.07.23.tar.gz",
+          "requires_grad": true
+        }
+      }
+    },
+    "task_head_type": "mc",
+    "num_options": 2,
+    "lm_loss_weight": 0.5,
+    "include_lm_loss": true
+  },
+  "iterator": {"type": "basic", "batch_size": 2},
+  "trainer": {
+    "optimizer": {
+      "type": "openai_adam",
+      "lr": 6.25e-5,
+      "b1": 0.9,
+      "b2": 0.99,
+      "eps": 1e-8,
+      "weight_decay": 0.01,
+      "warmup": 0.002,
+      "t_total": 15220,
+      "l2": 0.01,
+      "vector_l2": true,
+      "max_grad_norm": 1
+    },
+    "grad_clipping": 1,
+    "num_epochs": 20,
+    "cuda_device": -1,
+    "patience": 3,
+    "validation_metric": "+accuracy",
+    "num_serialized_models_to_keep": 3
+  }
+}
