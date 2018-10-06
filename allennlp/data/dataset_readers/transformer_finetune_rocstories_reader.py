@@ -16,10 +16,6 @@ logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 import re
 
 
-logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
-import re
-
-
 @DatasetReader.register("transformer_finetune_rocstories_reader")
 class TransformerFinetuneRocstoriesReader(DatasetReader):
     """
