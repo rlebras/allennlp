@@ -123,6 +123,7 @@ class OpenaiTransformerFinetuner(Model, FromParams):
         self._transformer_model = \
             self._text_field_embedder._token_embedders['openai_transformer']._transformer
         self.lm_head = LMHead(self._transformer_model)
+        print("TAGS: ", OpenaiTransformerFinetuneBytePairIndexer.special_tags)
         self.clf_token_index = OpenaiTransformerFinetuneBytePairIndexer.special_tags[CLF_TAG]
         self.include_lm_loss = include_lm_loss
 

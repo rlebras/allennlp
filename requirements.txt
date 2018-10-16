@@ -31,6 +31,7 @@ numpydoc==0.8.0
 # Used in coreference resolution evaluation metrics.
 scipy
 scikit-learn
+gensim
 
 # Write logs for training visualisation with the Tensorboard application
 # Install the Tensorboard application separately (part of tensorflow) to view them.
