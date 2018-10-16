@@ -125,8 +125,9 @@ def sentence_similarity(s1, s2, model, index2word_set):
 
 def compareCOPAwE2E(copa_entry, alt, e2e_entry, target, field, model, index2word_set):
     if target == "":
-        return 0
+        return -1
 
+    # Extract: copa_a => copa_b
     if copa_entry['@asks-for'] == 'cause':
         copa_a = copa_entry[alt]
         copa_b = copa_entry['p']
@@ -134,6 +135,7 @@ def compareCOPAwE2E(copa_entry, alt, e2e_entry, target, field, model, index2word
         copa_a = copa_entry['p']
         copa_b = copa_entry[alt]
 
+    # Extract: e2e_a => e2e_b
     if field == 'xEffect' or field == 'oEffect':
         e2e_a = e2e_entry['event']
         e2e_b = target
@@ -141,8 +143,10 @@ def compareCOPAwE2E(copa_entry, alt, e2e_entry, target, field, model, index2word
         e2e_a = target
         e2e_b = e2e_entry['event']
 
+    # Pairwise comparison of the endpoints of the 2 edges
     s_a = sentence_similarity(copa_a, e2e_a, model, index2word_set)
     s_b = sentence_similarity(copa_b, e2e_b, model, index2word_set)
+
     return s_a + s_b
 
 
@@ -174,25 +178,16 @@ def NearestCausalRelation():
         best_a2 = ''
         best_a2_score = 0
         for e in e2e:
-            for effect in e['xEffect']:
-                a1_score = compareCOPAwE2E(item, 'a1', e, effect, 'xEffect', model, index2word_set)
-                if a1_score > best_a1_score:
-                    best_a1_score = a1_score
-                    best_a1 = e
-                a2_score = compareCOPAwE2E(item, 'a2', e, effect, 'xEffect', model, index2word_set)
-                if a2_score > best_a2_score:
-                    best_a2_score = a2_score
-                    best_a2 = e
-
-            for cause in e['xWant']:
-                a1_score = compareCOPAwE2E(item, 'a1', e, cause, 'xWant', model, index2word_set)
-                if a1_score > best_a1_score:
-                    best_a1_score = a1_score
-                    best_a1 = e
-                a2_score = compareCOPAwE2E(item, 'a2', e, cause, 'xWant', model, index2word_set)
-                if a2_score > best_a2_score:
-                    best_a2_score = a2_score
-                    best_a2 = e
+            for field in ['xEffect', 'xWant']:
+                for target in e[field]:
+                    a1_score = compareCOPAwE2E(item, 'a1', e, target, field, model, index2word_set)
+                    if a1_score > best_a1_score:
+                        best_a1_score = a1_score
+                        best_a1 = [e["event"], target]
+                    a2_score = compareCOPAwE2E(item, 'a2', e, target, field, model, index2word_set)
+                    if a2_score > best_a2_score:
+                        best_a2_score = a2_score
+                        best_a2 = [e["event"], target]
 
         print("best_a1_score: ", best_a1_score)
         print("best_a1:       ", best_a1)
