@@ -146,30 +146,29 @@ def compareCOPAwE2E(copa_entry, alt, e2e_entry, target, field, model, index2word
     return s_a + s_b
 
 
+def printCOPA(copa_item):
+    print("p:  ", copa_item['p'])
+    print("a1: ", copa_item['a1'])
+    print("a2: ", copa_item['a2'])
+    print("sol:", copa_item['@most-plausible-alternative'])
+
+
 def NearestCausalRelation():
-    print("Let's do it!!")
-    copa = loadCOPA()
+    
     print("Loading W2V")
     model = loadW2V()
+    index2word_set = set(model.wv.index2word)
     print("Done loading W2V")
 
-    index2word_set = set(model.wv.index2word)
-
-    #sim = sentence_similarity('this is a sentence', 'this is not a sentense', model, index2word_set)
-    #print(sim)
-
-    #sim = sentence_similarity('this is a sentence', 'A dog walking', model, index2word_set)
-    #print(sim)
-
+    print("Loading COPA and ATOMIC")
+    copa = loadCOPA()
     e2e = loadE2E()
+    print("Done loading COPA and ATOMIC")
 
     nb_correct = 0
     nb_total = 0
     for i, item in enumerate(copa):
-        print("p:  ", item['p'])
-        print("a1: ", item['a1'])
-        print("a2: ", item['a2'])
-        print("sol:", item['@most-plausible-alternative'])
+        printCOPA(item)
         best_a1 = ''
         best_a1_score = 0
         best_a2 = ''
