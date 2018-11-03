@@ -21,3 +21,7 @@ from allennlp.training.metrics.sequence_accuracy import SequenceAccuracy
 from allennlp.training.metrics.span_based_f1_measure import SpanBasedF1Measure
 from allennlp.training.metrics.squad_em_and_f1 import SquadEmAndF1
 from allennlp.training.metrics.unigram_recall import UnigramRecall
+
+from allennlp.training.metrics.rouge_score import RougeL, RougeN
+from allennlp.training.metrics.bleu_score import BleuN
+from allennlp.training.metrics.average import BatchedAverage
