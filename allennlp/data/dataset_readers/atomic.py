@@ -211,10 +211,10 @@ class Event2EventDatasetReader(DatasetReader):
 @DatasetReader.register("atomic")
 class AtomicDatasetReader(DatasetReader):
     """
-    Reads instances from the Event2Event dataset.
+    Reads instances from the Atomic dataset.
 
     This dataset is CSV and has the columns:
-    ["oEffect", "oReact", "oWant", "xAttr", "xEffect", "xIntent", "xNeed", "xReact", "xWant"]
+    ["event", "oEffect", "oReact", "oWant", "xAttr", "xEffect", "xIntent", "xNeed", "xReact", "xWant"]
 
     For instance:
     ...
