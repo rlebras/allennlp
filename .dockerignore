@@ -3,3 +3,7 @@
 **/__pycache__
 .gitignore
 .git
+**.tgz
+**.tar.gz
+event2event_humaneval/*
+Event2Event*/

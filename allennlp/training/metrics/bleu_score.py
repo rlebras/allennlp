@@ -28,58 +28,78 @@ class BleuN(Metric):
         return bleu(refs,hyp,weights=self.weights,smoothing_function=SmoothingFunction().method1)
     
     def __call__(self,
-                 predictions: torch.Tensor,
-                 gold_labels: torch.Tensor,
+                 references: torch.Tensor,
+                 hypotheses: torch.Tensor,
                  mask: Optional[torch.Tensor] = None,
                  end_index: int = sys.maxsize,
+                 none_index: int = None,
                  dont_count_empty_predictions = False):
         """
         Parameters
         ----------
-        predictions : ``torch.Tensor``, required.
-            A tensor of predictions of shape (batch_size, k, sequence_length).
-        gold_labels : ``torch.Tensor``, required.
-            A tensor of integer class label of shape (batch_size, sequence_length).
+        references : ``torch.Tensor``, required.
+            A tensor of integer class labels of shape (N, sequence_length) where N is the number of references.
+        hypotheses : ``torch.Tensor``, required.
+            A tensor of integer class label of shape (K, sequence_length) where K is the number of hypotheses. 
         mask: ``torch.Tensor``, optional (default = None).
             A masking tensor the same size as ``gold_labels``.
         """
-        predictions, gold_labels, mask = self.unwrap_to_tensors(predictions, gold_labels, mask)
+        
+        hypotheses, references, mask = self.unwrap_to_tensors(hypotheses, references, mask)
 
         # Some sanity checks.
-        if gold_labels.dim() != predictions.dim() - 1:
-            raise ConfigurationError("gold_labels must have dimension == predictions.dim() - 1 but "
-                                     "found tensor of shape: {}".format(gold_labels.size()))
-        if mask is not None and mask.size() != gold_labels.size():
+        if references.dim() != hypotheses.dim():
+            raise ConfigurationError("references must have dimension == predictions.dim() but "
+                                     "found tensor of shape: {}".format(references.size()))
+        if mask is not None and mask.size() != references.size():
             raise ConfigurationError("mask must have the same size as predictions but "
                                      "found tensor of shape: {}".format(mask.size()))
 
-        k = predictions.size()[1]
-        batch_size = predictions.size()[0]
+        k = hypotheses.size()[0]
+        batch_size = 1 # .size()[0]
         
         bl_scores = []
 
-        for i, (beams, cur_gold) in enumerate(zip(predictions,gold_labels)):
+        # if mask, gold needs to do something?
+        
+        # truncating references to the end_token
+        clean_refs = [[str(x.item()) for x in ref if x.item() != 0 and x.item() != end_index]
+                      for ref in references]
+
+        for i, beam in enumerate(hypotheses):
             if mask is not None:
-                masked_gold = cur_gold * mask[i]
                 masked_beams = [b*mask[i] for b in beams]
             else:
-                masked_gold = cur_gold
-                masked_beams = beams
+                masked_beam = beam
 
             # HACK: turn tensors into strings cause nltk.bleu() doesn't work with tensors (only str or int)
-            cleaned_gold = [str(x.item()) for x in masked_gold if x.item() != 0 and x.item() != end_index]
-            cleaned_beams = [[str(x.item()) for x in b if x.item() != 0 and x.item() != end_index]
-                             for b in masked_beams]
+            # cleaned_gold = [str(x.item()) for x in masked_gold if x.item() != 0 and x.item() != end_index]
+            # cleaned_beams = [[str(x.item()) for x in b if x.item() != 0 and x.item() != end_index]
+            #                  for b in masked_beams]
+            clean_beam = [str(x.item()) for x in masked_beam if x.item() != 0 and x.item() != end_index]
+            
+            if none_index is not None and sum([x == [str(none_index)] for x in clean_refs])/len(clean_refs) > 1/3:
+                # Oracle about Nones
+                
+                # bl = 1
+                # bl_scores.append(bl)
+                
+                # if sum([x == [str(none_index)] for x in clean_refs])/len(clean_refs) > 1/3:
+                #     ip_embed();exit()
+                continue
+
             #print("cleaned_gold: ", cleaned_gold)
             #print("cleaned_beams: ", cleaned_beams)
-            if dont_count_empty_predictions:
-                all_empty = all(x == [] for x in cleaned_beams)
-                if not all_empty:
-                    bl = self._scoring_f(cleaned_gold, cleaned_beams)
-                    bl_scores.append(bl)
-            else:
-                bl = self._scoring_f(cleaned_gold,cleaned_beams)
+            if not dont_count_empty_predictions or not clean_beam == []:
+                bl = self._scoring_f(clean_beam,clean_refs)
                 bl_scores.append(bl)
+                
+            # if dont_count_empty_predictions and not all(x == [] for x in cleaned_beams):
+            #     bl = self._scoring_f(cleaned_gold, cleaned_beams)
+            #     bl_scores.append(bl)
+            # else:
+            #     bl = self._scoring_f(cleaned_gold,cleaned_beams)
+            #     bl_scores.append(bl)
 
         #raise Exception('STOP!')
         self.bl_total += sum(bl_scores)

@@ -336,12 +336,15 @@ class Event2Event(Model):
         self._target_namespace = target_namespace
         self._embedding_dropout = nn.Dropout(0.2)
         self._target_fields = target_fields
-
+        
         print("vocab: ", vocab)
         # We need the start symbol to provide as the input at the first timestep of decoding, and
         # end symbol as a way to indicate the end of the decoded sequence.
         self._start_index = self.vocab.get_token_index(START_SYMBOL, self._target_namespace)
         self._end_index = self.vocab.get_token_index(END_SYMBOL, self._target_namespace)
+        
+        self._none_index = self.vocab.get_token_index("none", self._target_namespace)
+        
         num_classes = self.vocab.get_vocab_size(self._target_namespace)
         print("num classes: ", self.vocab.get_vocab_size(self._target_namespace))
         # Decoder output dim needs to be the same as the encoder output dim since we initialize the
@@ -427,7 +430,7 @@ class Event2Event(Model):
         batch_size, _, _ = embedded_input.size()
         source_mask = get_text_field_mask(source)
 
-        print("num classes: ", self.vocab.get_vocab_size(self._target_namespace))
+        # print("num classes: ", self.vocab.get_vocab_size(self._target_namespace))
 
         # (batch_size, encoder_output_dim)
         final_encoder_output = self._encoder(embedded_input, source_mask)
@@ -497,9 +500,9 @@ class Event2Event(Model):
                     self._update_recalls(all_top_k_predictions, target_tokens[name], state._recalls)
                     # also update loss counter
                     #state._xent(output_dict[name+"_loss"],output_dict[name+"_count"])
-                    refs = target_tokens[name + "_dom"]["tokens"][:, :, 1:].contiguous()
-                    for pred in all_top_k_predictions:
-                        state._bleu(refs, pred, mask = None, end_index = self._end_index, dont_count_empty_predictions = True)
+                    all_refs = target_tokens[name + "_dom"]["tokens"][:, :, 1:].contiguous()
+                    for pred, refs in zip(all_top_k_predictions,all_refs):
+                        state._bleu(refs, pred, mask = None, end_index = self._end_index, none_index = self._none_index, dont_count_empty_predictions = True)
                         #state._bleu1(refs, pred, mask = None, end_index = self._end_index, dont_count_empty_predictions = True)
                         #state._bleu4(refs, pred, mask = None, end_index = self._end_index, dont_count_empty_predictions = True)
                         #state._rouge(refs, pred, mask = None, end_index = self._end_index, dont_count_empty_predictions = True)
