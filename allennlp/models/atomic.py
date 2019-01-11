@@ -123,18 +123,22 @@ class StateDecoder:
         # [batch_size]
         starts = torch.ones_like(source_mask[:,1]) * start_ix
 
+        num_samples = k
+        
+        k = k if k < 20 else 15
+        
         ## To generate k samples:
-        starts = torch.stack([starts]*k)
-        final_encoder_output = torch.stack([final_encoder_output]*k)
+        starts = torch.stack([starts]*num_samples)
+        final_encoder_output = torch.stack([final_encoder_output]*num_samples)
         ##
         
         emb_inp = target_embedder(starts)
-        hidden_state_flat = final_encoder_output.reshape(batch_size * k,decoder_cell.hidden_size)
+        hidden_state_flat = final_encoder_output.reshape(batch_size * num_samples,decoder_cell.hidden_size)
 
         
         for i in range(num_decoding_steps):
             ## walk through cell
-            emb_inp_flat =  emb_inp.reshape(batch_size * k, decoder_cell.input_size)
+            emb_inp_flat =  emb_inp.reshape(batch_size * num_samples, decoder_cell.input_size)
             
             emb_out_flat = hidden_state_flat = decoder_cell(emb_inp_flat,hx=hidden_state_flat)
             
@@ -148,8 +152,8 @@ class StateDecoder:
             
             emb_inp_flat = target_embedder(next_tok_i)
             
-            pred_token_idx.append(next_tok_i.reshape(batch_size,k))
-            pred_token_ps.append(next_tok_lp.reshape(batch_size,k))
+            pred_token_idx.append(next_tok_i.reshape(batch_size,num_samples))
+            pred_token_ps.append(next_tok_lp.reshape(batch_size,num_samples))
 
 
         pred_token_idx = torch.stack(pred_token_idx,dim=-1)
@@ -526,18 +530,18 @@ class Event2Event(Model):
             for name, state in self._states.items():
                 # (batch_size, k, num_decoding_steps)
             
-                sample_top_k = True
+                sample_top_k = False
+                k = 10
                 if sample_top_k:
                     all_top_k_predictions, log_probabilities = state.sample_from_topk(
-                        final_encoder_output,10,self._get_num_decoding_steps(target_tokens.get(name)),
+                        final_encoder_output,k,self._get_num_decoding_steps(target_tokens.get(name)),
                         batch_size,source_mask,self._start_index, self._end_index,
                         self.vocab.get_vocab_size(self._target_namespace))
                 else:
                     all_top_k_predictions, log_probabilities = state.beam_search(
-                        final_encoder_output,10,self._get_num_decoding_steps(target_tokens.get(name)),
+                        final_encoder_output,k,self._get_num_decoding_steps(target_tokens.get(name)),
                         batch_size,source_mask,self._start_index, self._end_index,
                         self.vocab.get_vocab_size(self._target_namespace))
-                print(log_probabilities.shape)
                 
                 if target_tokens:
                     self._update_recalls(all_top_k_predictions, target_tokens[name], state._recalls)
