@@ -401,6 +401,7 @@ class Event2Event(Model):
         # We need the start symbol to provide as the input at the first timestep of decoding, and
         # end symbol as a way to indicate the end of the decoded sequence.
         self._start_index = self.vocab.get_token_index(START_SYMBOL, self._target_namespace)
+        self._none_index = self.vocab.get_token_index("none", self._target_namespace)
         self._end_index = self.vocab.get_token_index(END_SYMBOL, self._target_namespace)
         num_classes = self.vocab.get_vocab_size(self._target_namespace)
         # Decoder output dim needs to be the same as the encoder output dim since we initialize the
@@ -410,6 +411,7 @@ class Event2Event(Model):
         target_embedding_dim = target_embedding_dim or self._source_embedder.get_output_dim()
 
         self._states: Dict[str, Event2Event.StateDecoder] = {}
+        
         for field in self._target_fields:
             self._states[field] = StateDecoder(
                 name=field, event2event=self, num_classes=num_classes,
@@ -492,23 +494,15 @@ class Event2Event(Model):
 
         # Perform greedy search so we can get the loss.
         if target_tokens:
-            if target_tokens.keys() != self._states.keys():
-                target_only = target_tokens.keys() - self._states.keys()
-                states_only = self._states.keys() - target_tokens.keys()
-                raise Exception("Mismatch between target_tokens and self._states. Keys in " +
-                        "targets only: {} Keys in states only: {}".format(target_only, states_only))
+            # if target_tokens.keys() != self._states.keys():
+            #     target_only = target_tokens.keys() - self._states.keys()
+            #     states_only = self._states.keys() - target_tokens.keys()
+            #     raise Exception("Mismatch between target_tokens and self._states. Keys in " +
+            #             "targets only: {} Keys in states only: {}".format(target_only, states_only))
             total_loss = 0
             loss_count = 0
 
             for name, state in self._states.items():
-
-                # loss, count = self.greedy_search(
-                #     final_encoder_output,
-                #     target_tokens[name],
-                #     state._embedder,
-                #     state._decoder_cell,
-                #     state._output_projection_layer
-                # )
                 loss, count = state.greedy_search(
                     final_encoder_output,target_tokens[name])
                 
@@ -544,12 +538,22 @@ class Event2Event(Model):
                         self.vocab.get_vocab_size(self._target_namespace))
                 
                 if target_tokens:
+                    # Error here, something about a size mismatch in update_recalls
+                    # ip_embed()
                     self._update_recalls(all_top_k_predictions, target_tokens[name], state._recalls)
                     # also update loss counter
                     state._xent(output_dict[name+"_loss"],output_dict[name+"_count"])
-                    
+                    all_refs = target_tokens[name + "_dom"]["tokens"][:, :, 1:].contiguous()
+                    for pred, refs in zip(all_top_k_predictions,all_refs):
+                        
+                        for rec_name, rec in state._recalls.items():
+                            rec(refs, pred, mask=None, end_index=self._end_index,
+                                none_index=self._none_index, dont_count_empty_predictions=True)
+
+                    ip_embed();exit()    
                 output_dict["{}_top_k_predictions".format(name)] = all_top_k_predictions
                 output_dict["{}_top_k_log_probabilities".format(name)] = log_probabilities
+
 
         return output_dict
 

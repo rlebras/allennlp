@@ -6,6 +6,7 @@ from allennlp.common.checks import ConfigurationError
 from allennlp.training.metrics.metric import Metric
 
 from nltk import bleu
+from nltk.translate.bleu_score import SmoothingFunction
 
 from IPython import embed as ip_embed
 
@@ -21,53 +22,84 @@ class BleuN(Metric):
         self.count = 0
 
     def _scoring_f(self, hyp, refs):
-        return bleu(refs,hyp,weights=self.weights)
+        return bleu(refs,hyp,weights=self.weights,
+                    smoothing_function=SmoothingFunction().method1)
     
     def __call__(self,
-                 predictions: torch.Tensor,
-                 gold_labels: torch.Tensor,
+                 references: torch.Tensor,
+                 hypotheses: torch.Tensor,
                  mask: Optional[torch.Tensor] = None,
-                 end_index: int = sys.maxsize):
+                 end_index: int = sys.maxsize,
+                 none_index: int = None,
+                 dont_count_empty_predictions = False,
+                 none_limit: float = 1/3):
         """
         Parameters
         ----------
-        predictions : ``torch.Tensor``, required.
-            A tensor of predictions of shape (batch_size, k, sequence_length).
-        gold_labels : ``torch.Tensor``, required.
-            A tensor of integer class label of shape (batch_size, sequence_length).
+        references : ``torch.Tensor``, required.
+            A tensor of integer class labels of shape (N, sequence_length) where N is the number of references.
+        hypotheses : ``torch.Tensor``, required.
+            A tensor of integer class label of shape (K, sequence_length) where K is the number of hypotheses. 
         mask: ``torch.Tensor``, optional (default = None).
             A masking tensor the same size as ``gold_labels``.
+
+        end_index, none_index: ``int``s.
+            Vocab indexes of the "end" and "none" tokens.
+
+        done_count_empty_predictions ``bool``.
+            Whether to count predictions that are empty 
+
+        none_limit:
+            Ratio of annotators that said "none" (gold annotations) for the metric not to be computed. E.g., if gold=[[none], [none], [to be happy, to feel good]], then 2/3 of annotators said "none", and we skip.
         """
-        predictions, gold_labels, mask = self.unwrap_to_tensors(predictions, gold_labels, mask)
+        
+        hypotheses, references, mask = self.unwrap_to_tensors(hypotheses, references, mask)
 
         # Some sanity checks.
-        if gold_labels.dim() != predictions.dim() - 1:
-            raise ConfigurationError("gold_labels must have dimension == predictions.dim() - 1 but "
-                                     "found tensor of shape: {}".format(gold_labels.size()))
-        if mask is not None and mask.size() != gold_labels.size():
+        if references.dim() != hypotheses.dim():
+            raise ConfigurationError("references must have dimension == predictions.dim() but "
+                                     "found tensor of shape: {}".format(references.size()))
+        if mask is not None and mask.size() != references.size():
             raise ConfigurationError("mask must have the same size as predictions but "
                                      "found tensor of shape: {}".format(mask.size()))
 
-        k = predictions.size()[1]
-        batch_size = predictions.size()[0]
+        k = hypotheses.size()[0]
+        batch_size = 1 # .size()[0]
         
         bl_scores = []
+
+        # if mask, gold needs to do something?
         
-        for i, (beams, cur_gold) in enumerate(zip(predictions,gold_labels)):
+        # truncating references to the end_token
+        clean_refs = [[str(x.item()) for x in ref if x.item() != 0 and x.item() != end_index]
+                      for ref in references]
+
+        for i, beam in enumerate(hypotheses):
             if mask is not None:
-                masked_gold = cur_gold * mask[i]
                 masked_beams = [b*mask[i] for b in beams]
             else:
-                masked_gold = cur_gold
-                masked_beams = beams
+                masked_beam = beam
 
             # HACK: turn tensors into strings cause nltk.bleu() doesn't work with tensors (only str or int)
-            cleaned_gold = [str(x) for x in masked_gold if x != 0 and x != end_index]
-            cleaned_beams = [[str(x) for x in b if x != 0 and x != end_index]
-                             for b in masked_beams]
-            bl = self._scoring_f(cleaned_gold,cleaned_beams)
-            bl_scores.append(bl)
+            # cleaned_gold = [str(x.item()) for x in masked_gold if x.item() != 0 and x.item() != end_index]
+            # cleaned_beams = [[str(x.item()) for x in b if x.item() != 0 and x.item() != end_index]
+            #                  for b in masked_beams]
             
+            # 0 is the pad index I think
+            clean_beam = [str(x.item()) for x in masked_beam
+                          if x.item() != 0 and x.item() != end_index]
+            
+            if none_index is not None and sum(
+                    [x == [str(none_index)] for x in clean_refs])/len(clean_refs) > none_limit:
+                # If 1/3 or more of the annotators said "None", don't compute the score            
+                continue
+
+            if not dont_count_empty_predictions or not clean_beam == []:
+                bl = self._scoring_f(clean_beam,clean_refs)
+                bl_scores.append(bl)
+                
+
+        #raise Exception('STOP!')
         self.bl_total += sum(bl_scores)
         self.count += len(bl_scores)
 
